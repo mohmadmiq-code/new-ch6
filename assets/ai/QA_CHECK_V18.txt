@@ -1,0 +1,1 @@
+V18 checks: Core Up assets added; InternalAiTrainingAPI overridden; local KaTeX renderer repairs escaped span math; smart assistant empty on manual open and payload-bound on wrong answer; click outside closes drawer.

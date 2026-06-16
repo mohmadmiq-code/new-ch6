@@ -1,0 +1,7 @@
+V16 fixes:
+- Smart assistant is bound to current q.id, branch, variant and wrongItems.
+- Similar examples are mapped by exact question id, including hypergeometric and Poisson.
+- Numeric checking converts Arabic digits and treats exact zero strictly.
+- Math fallback removes raw LaTeX delimiters from questions, choices, solutions and chat.
+- Normal-distribution probability questions include shaded regions when relevant.
+- Self-check available in browser console: __stat102V16SelfCheck().

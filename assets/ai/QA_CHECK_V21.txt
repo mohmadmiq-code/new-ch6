@@ -1,0 +1,1 @@
+V21: restored original inline CSS/layout from V18. Removed V14-V18 math fallback scripts that created escaped <span> fragments. Uses MathJax/KaTeX local vendor assets only; clean assistant renders LaTeX text and re-typesets each bot message. Core Up logo/welcome and left drawer assistant added without changing original card layout.

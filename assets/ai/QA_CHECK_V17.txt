@@ -1,0 +1,7 @@
+STAT102 Chapter 6 — V17 QA Notes
+- The smart assistant now uses the current question id and current branch only.
+- Clicking outside the side drawer closes the assistant.
+- The chat uses a separate V17 renderer so formulas are not escaped as <span> text.
+- Similar examples are keyed by the same question family, not by the lesson only.
+- Normal distribution graphs are patched to shade the requested region when the question is left-tail, right-tail, or interval.
+- Self-check function available in console: __stat102V17SelfCheck()

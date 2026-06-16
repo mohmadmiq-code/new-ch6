@@ -1,0 +1,5 @@
+V15 QA CHECK
+- Numeric tolerance changed to < 0.005 so 0.01 is not accepted as 0.00.
+- 6.3 question bank expanded and diversified: concept, normal properties, standard normal left/between/inverse, standardization, interval, symmetric values, right tail, quality control, population count.
+- Equations in questions, solutions, results, and smart assistant have local MathJax plus local HTML fallback.
+- Smart assistant training assets are available in training/ and assets/ai/.
