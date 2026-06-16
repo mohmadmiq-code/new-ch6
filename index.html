@@ -6351,6 +6351,118 @@ window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); re
 })();
 </script>
 
+
+<!-- Core Up V25: GitHub Pages external assets resolver (keeps assets external, no base64 embedding) -->
+<script id="coreup-v25-assets-resolver">
+(function(){
+  if(window.__COREUP_V25_ASSETS_RESOLVER__) return;
+  window.__COREUP_V25_ASSETS_RESOLVER__ = true;
+
+  function unique(arr){ var out=[], seen={}; arr.forEach(function(x){ if(x && !seen[x]){ seen[x]=1; out.push(x); }}); return out; }
+  function bases(){
+    var p = (location.pathname || '').split('/').filter(Boolean);
+    var list = ['../assets/','./assets/','../../assets/'];
+    // GitHub project page: /repo/6.1/index.html -> /repo/assets/
+    if(p.length >= 1) list.push('/' + p[0] + '/assets/');
+    // If files are at domain root: /6.1/index.html -> /assets/
+    list.push('/assets/');
+    return unique(list);
+  }
+  window.COREUP_ASSET_BASES = bases();
+
+  function testImage(url){ return new Promise(function(resolve){ var im=new Image(); im.onload=function(){resolve(true)}; im.onerror=function(){resolve(false)}; im.src=url + (url.indexOf('?')>-1?'&':'?') + 'v=25'; }); }
+  async function findAsset(rel){
+    for(var i=0;i<window.COREUP_ASSET_BASES.length;i++){
+      var url = window.COREUP_ASSET_BASES[i] + rel;
+      var ok = await testImage(url);
+      if(ok) return url;
+    }
+    return null;
+  }
+  async function fixImages(){
+    var map = [
+      {sel:'img[src*="ksu_logo"], img[alt*="King Saud"], img[alt*="جامعة"]', rel:'img/ksu_logo.png'},
+      {sel:'img[src*="core_up_icon"], img[alt*="Core Up"]', rel:'img/core_up_icon.png'},
+      {sel:'img[src*="core_up_logo"]', rel:'img/core_up_logo.png'},
+      {sel:'img[src*="core_up_mark"]', rel:'img/core_up_mark.png'},
+      {sel:'img[src*="core_up_full"]', rel:'img/core_up_full.png'}
+    ];
+    for(var m=0;m<map.length;m++){
+      var url = await findAsset(map[m].rel);
+      if(!url) continue;
+      document.querySelectorAll(map[m].sel).forEach(function(img){ img.src = url; });
+    }
+  }
+
+  function loadCss(url){
+    if([].slice.call(document.styleSheets||[]).some(function(s){return s.href && s.href.indexOf(url.replace(/^.*assets\//,'assets/'))>-1;})) return;
+    var l=document.createElement('link'); l.rel='stylesheet'; l.href=url; document.head.appendChild(l);
+  }
+  function loadScript(url){
+    return new Promise(function(resolve,reject){
+      var s=document.createElement('script'); s.src=url; s.async=false;
+      s.onload=function(){resolve(url)}; s.onerror=function(){s.remove(); reject(new Error(url));};
+      document.head.appendChild(s);
+    });
+  }
+  async function loadFirstScript(rel){
+    for(var i=0;i<window.COREUP_ASSET_BASES.length;i++){
+      try{return await loadScript(window.COREUP_ASSET_BASES[i]+rel);}catch(e){}
+    }
+    return null;
+  }
+  function renderMath(root){
+    root=root||document.body;
+    try{
+      if(window.renderMathInElement && window.katex){
+        window.renderMathInElement(root,{
+          delimiters:[
+            {left:'\\[',right:'\\]',display:true},
+            {left:'\\(',right:'\\)',display:false},
+            {left:'$$',right:'$$',display:true}
+          ],
+          throwOnError:false,
+          strict:false,
+          ignoredTags:['script','noscript','style','textarea','pre','code','option','input','select'],
+          ignoredClasses:['katex','katex-display']
+        });
+      }
+    }catch(e){ console.warn('Core Up math render warning', e); }
+  }
+  async function ensureKatex(){
+    if(!(window.katex && window.renderMathInElement)){
+      // CSS can be loaded from all likely locations; the one that exists will be used by browser.
+      window.COREUP_ASSET_BASES.forEach(function(b){ loadCss(b+'vendor/katex/katex.min.css'); });
+      if(!window.katex) await loadFirstScript('vendor/katex/katex.min.js');
+      if(!window.renderMathInElement) await loadFirstScript('vendor/katex/auto-render.min.js');
+    }
+    window.typesetMath = renderMath;
+    window.CoreUpTypesetMathV25 = renderMath;
+    renderMath(document.body);
+    setTimeout(function(){renderMath(document.body);},300);
+  }
+  async function ensureTraining(){
+    if(!window.CoreUpAITraining && !window.COREUP_AI_TRAINING){
+      await loadFirstScript('ai/smart_assistant_training.js');
+    }
+  }
+  function boot(){
+    fixImages();
+    ensureKatex();
+    ensureTraining();
+    try{
+      var mo = new MutationObserver(function(muts){
+        var needs=false;
+        for(var i=0;i<muts.length;i++){ if(muts[i].addedNodes && muts[i].addedNodes.length){needs=true;break;} }
+        if(needs) setTimeout(function(){fixImages();renderMath(document.body);},80);
+      });
+      mo.observe(document.documentElement,{childList:true,subtree:true});
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
+
 </body>
 </html>
 
