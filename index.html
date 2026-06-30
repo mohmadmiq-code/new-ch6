@@ -6266,200 +6266,158 @@ window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); re
 
 
 
-<!-- STAT102 V23: single clean KaTeX renderer; no HTML math conversion -->
-<style id="stat102-v23-math-style">
-  .katex,.katex-display{direction:ltr!important;unicode-bidi:isolate!important;}
-  .sai21-msg-content .katex{font-size:1em!important;}
-  .sai21-msg-content{font-size:12px!important;line-height:1.9!important;}
-  .mathInline,.mathBlock{direction:ltr!important;unicode-bidi:isolate!important;}
-</style>
-<script id="stat102-v23-clean-katex">
+<!-- Core Up V27: stable MathJax renderer from assets; no KaTeX fallback and no HTML math conversion -->
+<script id="coreup-v27-stable-math-assets">
 (function(){
-  if(window.__COREUP_V23_CLEAN_KATEX__) return;
-  window.__COREUP_V23_CLEAN_KATEX__ = true;
+  if(window.__COREUP_V27_STABLE_MATH__) return;
+  window.__COREUP_V27_STABLE_MATH__ = true;
 
-  function cleanBrokenTextNodes(root){
-    // لا نولّد HTML داخل المعادلات إطلاقًا؛ فقط تنظيف بقايا نصية إن ظهرت من نسخ قديمة.
-    try{
-      var walker = document.createTreeWalker(root || document.body, NodeFilter.SHOW_TEXT, {
-        acceptNode:function(n){
-          var p=n.parentElement;
-          if(!p || (p.closest && p.closest('script,style,textarea,option,input,select,.katex,mjx-container'))) return NodeFilter.FILTER_REJECT;
-          var t=n.nodeValue || '';
-          return (t.indexOf('&lt;span')>=0 || t.indexOf('<span')>=0 || t.indexOf('class="stat-')>=0) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-        }
-      });
-      var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
-      nodes.forEach(function(n){
-        var d=document.createElement('textarea'); d.innerHTML=n.nodeValue;
-        n.nodeValue = (d.value || n.nodeValue)
-          .replace(/<\/?span[^>]*>/gi,'')
-          .replace(/class\s*=\s*["'][^"']*["']/gi,'')
-          .replace(/\s+/g,' ');
-      });
-    }catch(e){}
-  }
-
-  function coreUpTypesetMath(root){
-    root = root || document.body;
-    if(!root) return;
-    cleanBrokenTextNodes(root);
-    if(window.renderMathInElement && window.katex){
-      try{
-        renderMathInElement(root, {
-          delimiters: [
-            {left:'\\[', right:'\\]', display:true},
-            {left:'\\(', right:'\\)', display:false},
-            {left:'$$', right:'$$', display:true},
-            {left:'$', right:'$', display:false}
-          ],
-          throwOnError:false,
-          strict:false,
-          trust:false,
-          ignoredTags:['script','noscript','style','textarea','pre','code','option','input','select'],
-          ignoredClasses:['katex','katex-display','math-fallback','math-clean-v22','stat-frac','stat-comb','stat-root']
-        });
-      }catch(e){ console.warn('Core Up KaTeX render failed', e); }
-    }else if(window.MathJax && typeof MathJax.typesetPromise === 'function'){
-      try{ MathJax.typesetPromise([root]).catch(function(){}); }catch(e){}
-    }
-  }
-
-  window.CoreUpTypesetMathV23 = coreUpTypesetMath;
-  window.typesetMath = coreUpTypesetMath;
-  try{ typesetMath = coreUpTypesetMath; }catch(e){}
-  window._fallbackTypesetMath = function(root){ coreUpTypesetMath(root || document.body); };
-  try{ _fallbackTypesetMath = window._fallbackTypesetMath; }catch(e){}
-
-  var timer=null;
-  function schedule(root){ clearTimeout(timer); timer=setTimeout(function(){coreUpTypesetMath(root||document.body);},60); }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){ schedule(document.body); setTimeout(function(){schedule(document.body);},500); });
-  }else{
-    schedule(document.body); setTimeout(function(){schedule(document.body);},500);
-  }
-  try{
-    var mo = new MutationObserver(function(muts){
-      var target=null;
-      for(var i=0;i<muts.length;i++){
-        if(muts[i].addedNodes && muts[i].addedNodes.length){ target=muts[i].target; break; }
-      }
-      if(target) schedule(target);
-    });
-    mo.observe(document.documentElement,{childList:true,subtree:true});
-  }catch(e){}
-})();
-</script>
-
-
-<!-- Core Up V25: GitHub Pages external assets resolver (keeps assets external, no base64 embedding) -->
-<script id="coreup-v25-assets-resolver">
-(function(){
-  if(window.__COREUP_V25_ASSETS_RESOLVER__) return;
-  window.__COREUP_V25_ASSETS_RESOLVER__ = true;
+  // Stop older fallback converters from turning LaTeX into visible <span> text.
+  window._fallbackTypesetMath = function(){};
+  try{ _fallbackTypesetMath = window._fallbackTypesetMath; }catch(_e){}
 
   function unique(arr){ var out=[], seen={}; arr.forEach(function(x){ if(x && !seen[x]){ seen[x]=1; out.push(x); }}); return out; }
-  function bases(){
-    var p = (location.pathname || '').split('/').filter(Boolean);
-    var list = ['../assets/','./assets/','../../assets/'];
-    // GitHub project page: /repo/6.1/index.html -> /repo/assets/
-    if(p.length >= 1) list.push('/' + p[0] + '/assets/');
-    // If files are at domain root: /6.1/index.html -> /assets/
+  function assetBases(){
+    var p=(location.pathname||'').split('/').filter(Boolean);
+    var list=['../assets/','./assets/','../../assets/'];
+    if(p.length>=1) list.push('/'+p[0]+'/assets/');
     list.push('/assets/');
     return unique(list);
   }
-  window.COREUP_ASSET_BASES = bases();
+  window.COREUP_ASSET_BASES = window.COREUP_ASSET_BASES || assetBases();
 
-  function testImage(url){ return new Promise(function(resolve){ var im=new Image(); im.onload=function(){resolve(true)}; im.onerror=function(){resolve(false)}; im.src=url + (url.indexOf('?')>-1?'&':'?') + 'v=25'; }); }
-  async function findAsset(rel){
+  function testImage(url){
+    return new Promise(function(resolve){
+      var im=new Image();
+      im.onload=function(){resolve(true)};
+      im.onerror=function(){resolve(false)};
+      im.src=url + (url.indexOf('?')>-1?'&':'?') + 'v=27';
+    });
+  }
+  async function findImage(rel){
     for(var i=0;i<window.COREUP_ASSET_BASES.length;i++){
-      var url = window.COREUP_ASSET_BASES[i] + rel;
-      var ok = await testImage(url);
-      if(ok) return url;
+      var url=window.COREUP_ASSET_BASES[i]+rel;
+      try{ if(await testImage(url)) return url; }catch(_e){}
     }
     return null;
   }
   async function fixImages(){
-    var map = [
-      {sel:'img[src*="ksu_logo"], img[alt*="King Saud"], img[alt*="جامعة"]', rel:'img/ksu_logo.png'},
-      {sel:'img[src*="core_up_icon"], img[alt*="Core Up"]', rel:'img/core_up_icon.png'},
-      {sel:'img[src*="core_up_logo"]', rel:'img/core_up_logo.png'},
-      {sel:'img[src*="core_up_mark"]', rel:'img/core_up_mark.png'},
-      {sel:'img[src*="core_up_full"]', rel:'img/core_up_full.png'}
+    var pairs=[
+      ['img[src*="ksu_logo"],img[alt*="King Saud"],img[alt*="جامعة"]','img/ksu_logo.png'],
+      ['img[src*="core_up_icon"],img[alt*="Core Up"],img[title*="Core Up"]','img/core_up_icon.png'],
+      ['img[src*="core_up_logo"]','img/core_up_logo.png'],
+      ['img[src*="core_up_mark"]','img/core_up_mark.png'],
+      ['img[src*="core_up_full"]','img/core_up_full.png']
     ];
-    for(var m=0;m<map.length;m++){
-      var url = await findAsset(map[m].rel);
+    for(var i=0;i<pairs.length;i++){
+      var url=await findImage(pairs[i][1]);
       if(!url) continue;
-      document.querySelectorAll(map[m].sel).forEach(function(img){ img.src = url; });
+      document.querySelectorAll(pairs[i][0]).forEach(function(img){ img.src=url; });
     }
   }
 
-  function loadCss(url){
-    if([].slice.call(document.styleSheets||[]).some(function(s){return s.href && s.href.indexOf(url.replace(/^.*assets\//,'assets/'))>-1;})) return;
-    var l=document.createElement('link'); l.rel='stylesheet'; l.href=url; document.head.appendChild(l);
+  function cleanRawMathText(root){
+    root=root||document.body;
+    try{
+      var walker=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode:function(n){
+          var p=n.parentElement;
+          if(!p || (p.closest && p.closest('script,style,textarea,option,input,select,mjx-container,.katex,.katex-display'))) return NodeFilter.FILTER_REJECT;
+          var t=n.nodeValue||'';
+          return (/\\\\[\(\)\[\]]/.test(t) || /&lt;\/?span|<\/?span|class\s*=\s*["']stat-/i.test(t)) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+        }
+      });
+      var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(function(n){
+        var t=n.nodeValue||'';
+        // decode visible escaped tags, then remove any leftover formatter tags from old versions
+        var ta=document.createElement('textarea'); ta.innerHTML=t; t=ta.value;
+        t=t.replace(/<\/?span[^>]*>/gi,'').replace(/class\s*=\s*["'][^"']*["']/gi,'');
+        // if old code doubled the math delimiters, reduce them to valid MathJax delimiters
+        t=t.replace(/\\\\\(/g,'\\(').replace(/\\\\\)/g,'\\)').replace(/\\\\\[/g,'\\[').replace(/\\\\\]/g,'\\]');
+        n.nodeValue=t;
+      });
+    }catch(e){}
   }
+
+  function configureMathJax(){
+    window.MathJax = window.MathJax || {};
+    window.MathJax.tex = Object.assign({
+      inlineMath: [["\\(","\\)"],["$","$"]],
+      displayMath: [["\\[","\\]"],["$$","$$"]],
+      processEscapes: true,
+      packages: {'[+]':['ams']}
+    }, window.MathJax.tex || {});
+    window.MathJax.options = Object.assign({
+      skipHtmlTags: ['script','noscript','style','textarea','pre','code','option','input','select']
+    }, window.MathJax.options || {});
+    window.MathJax.svg = Object.assign({fontCache:'global'}, window.MathJax.svg || {});
+  }
+  configureMathJax();
+
   function loadScript(url){
     return new Promise(function(resolve,reject){
+      var existing=[].slice.call(document.scripts||[]).some(function(s){return s.src===url;});
+      if(existing){ resolve(url); return; }
       var s=document.createElement('script'); s.src=url; s.async=false;
       s.onload=function(){resolve(url)}; s.onerror=function(){s.remove(); reject(new Error(url));};
       document.head.appendChild(s);
     });
   }
-  async function loadFirstScript(rel){
+  async function ensureMathJax(){
+    configureMathJax();
+    if(window.MathJax && typeof window.MathJax.typesetPromise==='function') return true;
     for(var i=0;i<window.COREUP_ASSET_BASES.length;i++){
-      try{return await loadScript(window.COREUP_ASSET_BASES[i]+rel);}catch(e){}
+      try{
+        await loadScript(window.COREUP_ASSET_BASES[i]+'vendor/mathjax/tex-svg.js');
+        if(window.MathJax && window.MathJax.startup && window.MathJax.startup.promise){
+          await window.MathJax.startup.promise.catch(function(){});
+        }
+        if(window.MathJax && typeof window.MathJax.typesetPromise==='function') return true;
+      }catch(_e){}
     }
-    return null;
+    return !!(window.MathJax && typeof window.MathJax.typesetPromise==='function');
   }
-  function renderMath(root){
+
+  var renderTimer=null;
+  async function renderMath(root){
     root=root||document.body;
+    cleanRawMathText(root);
+    var ok=await ensureMathJax();
+    if(!ok) return;
     try{
-      if(window.renderMathInElement && window.katex){
-        window.renderMathInElement(root,{
-          delimiters:[
-            {left:'\\[',right:'\\]',display:true},
-            {left:'\\(',right:'\\)',display:false},
-            {left:'$$',right:'$$',display:true}
-          ],
-          throwOnError:false,
-          strict:false,
-          ignoredTags:['script','noscript','style','textarea','pre','code','option','input','select'],
-          ignoredClasses:['katex','katex-display']
-        });
-      }
-    }catch(e){ console.warn('Core Up math render warning', e); }
+      if(window.MathJax.typesetClear) window.MathJax.typesetClear([root]);
+    }catch(_e){}
+    try{
+      await window.MathJax.typesetPromise([root]);
+    }catch(e){ console.warn('Core Up MathJax render warning', e); }
   }
-  async function ensureKatex(){
-    if(!(window.katex && window.renderMathInElement)){
-      // CSS can be loaded from all likely locations; the one that exists will be used by browser.
-      window.COREUP_ASSET_BASES.forEach(function(b){ loadCss(b+'vendor/katex/katex.min.css'); });
-      if(!window.katex) await loadFirstScript('vendor/katex/katex.min.js');
-      if(!window.renderMathInElement) await loadFirstScript('vendor/katex/auto-render.min.js');
-    }
-    window.typesetMath = renderMath;
-    window.CoreUpTypesetMathV25 = renderMath;
-    renderMath(document.body);
-    setTimeout(function(){renderMath(document.body);},300);
+  function schedule(root, delay){
+    clearTimeout(renderTimer);
+    renderTimer=setTimeout(function(){ renderMath(root||document.body); }, delay==null?90:delay);
   }
-  async function ensureTraining(){
-    if(!window.CoreUpAITraining && !window.COREUP_AI_TRAINING){
-      await loadFirstScript('ai/smart_assistant_training.js');
-    }
-  }
+
+  window.typesetMath = function(root){ schedule(root||document.body, 10); };
+  window.CoreUpTypesetMathV27 = renderMath;
+  try{ typesetMath = window.typesetMath; }catch(_e){}
+
   function boot(){
     fixImages();
-    ensureKatex();
-    ensureTraining();
+    schedule(document.body, 60);
+    setTimeout(function(){fixImages(); schedule(document.body, 0);}, 500);
+    setTimeout(function(){schedule(document.body, 0);}, 1200);
     try{
-      var mo = new MutationObserver(function(muts){
-        var needs=false;
-        for(var i=0;i<muts.length;i++){ if(muts[i].addedNodes && muts[i].addedNodes.length){needs=true;break;} }
-        if(needs) setTimeout(function(){fixImages();renderMath(document.body);},80);
+      var mo=new MutationObserver(function(muts){
+        var target=null;
+        for(var i=0;i<muts.length;i++){
+          if(muts[i].addedNodes && muts[i].addedNodes.length){ target=muts[i].target; break; }
+        }
+        if(target) schedule(target, 120);
       });
-      mo.observe(document.documentElement,{childList:true,subtree:true});
-    }catch(e){}
+      mo.observe(document.documentElement,{childList:true,subtree:true,characterData:true});
+    }catch(_e){}
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
 
