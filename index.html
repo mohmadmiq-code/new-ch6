@@ -6421,6 +6421,175 @@ window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); re
 })();
 </script>
 
+
+<!-- Core Up V28: local safe math renderer. No external math dependency. -->
+<style id="coreup-v28-math-style">
+  .coreup-math{direction:ltr!important;unicode-bidi:isolate!important;display:inline-flex;align-items:center;gap:2px;font-family:"Cambria Math","Times New Roman",serif!important;font-weight:800;line-height:1.55;white-space:nowrap;vertical-align:middle;color:#0f172a;background:#f8fafc;border:1px solid #dbe7f2;border-radius:8px;padding:2px 7px;margin:0 2px;max-width:100%;overflow-x:auto;}
+  .coreup-math-block{display:flex!important;width:max-content;max-width:100%;margin:10px auto;padding:8px 12px;justify-content:center;text-align:center;}
+  .coreup-frac{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;vertical-align:middle;line-height:1.15;margin:0 2px;}
+  .coreup-frac>span:first-child{display:block;border-bottom:1.7px solid currentColor;padding:0 5px 2px;}
+  .coreup-frac>span:last-child{display:block;padding:2px 5px 0;}
+  .coreup-binom{display:inline-flex;align-items:center;gap:2px;margin:0 2px;}
+  .coreup-binom::before{content:"(";font-size:1.35em;line-height:.8}.coreup-binom::after{content:")";font-size:1.35em;line-height:.8}
+  .coreup-binom-inner{display:inline-flex;flex-direction:column;align-items:center;line-height:1.05}.coreup-binom-inner span{display:block;padding:0 2px;}
+  .coreup-cases{display:inline-table;border-collapse:collapse;vertical-align:middle;margin:0 4px;text-align:left;direction:ltr;}
+  .coreup-cases::before{content:"{";display:table-cell;font-size:2.8em;line-height:1;vertical-align:middle;padding-right:6px;}
+  .coreup-cases-rows{display:table-cell;vertical-align:middle}.coreup-cases-row{display:grid;grid-template-columns:auto auto;gap:12px;line-height:1.55;}.coreup-cases-cond{color:#334155;font-weight:700;}
+  .sai21-msg-content .coreup-math{font-size:12px;padding:1px 5px}.sai21-msg-content .coreup-math-block{font-size:12px;margin:7px auto;}
+</style>
+<script id="coreup-v28-safe-math-renderer">
+(function(){
+  if(window.__COREUP_V28_SAFE_MATH__) return;
+  window.__COREUP_V28_SAFE_MATH__=true;
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m];});}
+  function decodeEntities(s){var t=document.createElement('textarea');t.innerHTML=String(s==null?'':s);return t.value;}
+  function stripOldHtml(s){
+    s=decodeEntities(s);
+    return s.replace(/<\/?span[^>]*>/gi,'')
+            .replace(/<\/?div[^>]*>/gi,'')
+            .replace(/class\s*=\s*["'][^"']*["']/gi,'')
+            .replace(/\s+/g,' ');
+  }
+  function readGroup(str,pos){
+    if(str[pos]!=="{") return null;
+    var depth=0;
+    for(var i=pos;i<str.length;i++){
+      var ch=str[i], prev=str[i-1];
+      if(ch==='{' && prev!=='\\') depth++;
+      else if(ch==='}' && prev!=='\\'){
+        depth--; if(depth===0) return {value:str.slice(pos+1,i),end:i+1};
+      }
+    }
+    return null;
+  }
+  function replaceTwoArgs(str,cmd,fn){
+    var out='',i=0,token='\\'+cmd;
+    while(i<str.length){
+      if(str.startsWith(token,i)){
+        var p=i+token.length; while(str[p]===' ')p++;
+        var a=readGroup(str,p);
+        if(a){var q=a.end; while(str[q]===' ')q++; var b=readGroup(str,q); if(b){out+=fn(renderLatex(a.value),renderLatex(b.value)); i=b.end; continue;}}
+      }
+      out+=str[i++];
+    }
+    return out;
+  }
+  function replaceOneArg(str,cmd,fn){
+    var out='',i=0,token='\\'+cmd;
+    while(i<str.length){
+      if(str.startsWith(token,i)){
+        var p=i+token.length; while(str[p]===' ')p++;
+        var a=readGroup(str,p);
+        if(a){out+=fn(renderLatex(a.value)); i=a.end; continue;}
+      }
+      out+=str[i++];
+    }
+    return out;
+  }
+  function splitLatexRows(body){
+    var rows=[],cur='',depth=0;
+    for(var i=0;i<body.length;i++){
+      var ch=body[i],prev=body[i-1];
+      if(ch==='{' && prev!=='\\') depth++;
+      if(ch==='}' && prev!=='\\') depth=Math.max(0,depth-1);
+      if(ch==='\\' && body[i+1]==='\\' && depth===0){rows.push(cur);cur='';i++;continue;}
+      cur+=ch;
+    }
+    if(cur.trim()) rows.push(cur);
+    return rows;
+  }
+  function renderCases(body){
+    var rows=splitLatexRows(body).map(function(r){
+      var parts=[],cur='',depth=0;
+      for(var i=0;i<r.length;i++){
+        var ch=r[i],prev=r[i-1];
+        if(ch==='{'&&prev!=='\\')depth++; if(ch==='}'&&prev!=='\\')depth=Math.max(0,depth-1);
+        if(ch==='&'&&depth===0){parts.push(cur);cur='';continue;} cur+=ch;
+      }
+      parts.push(cur);
+      return '<div class="coreup-cases-row"><span>'+renderLatex(parts[0]||'')+'</span><span class="coreup-cases-cond">'+renderLatex(parts.slice(1).join(' '))+'</span></div>';
+    }).join('');
+    return '<span class="coreup-cases"><span class="coreup-cases-rows">'+rows+'</span></span>';
+  }
+  function renderScripts(t){
+    // Braced scripts
+    t=t.replace(/\^\{([^{}]*)\}/g,function(_,a){return '<sup>'+renderLatex(a)+'</sup>';});
+    t=t.replace(/_\{([^{}]*)\}/g,function(_,a){return '<sub>'+renderLatex(a)+'</sub>';});
+    // Single-character scripts
+    t=t.replace(/\^([A-Za-z0-9+\-]+)/g,'<sup>$1</sup>');
+    t=t.replace(/_([A-Za-z0-9+\-]+)/g,'<sub>$1</sub>');
+    return t;
+  }
+  function renderLatex(src){
+    var t=stripOldHtml(src).trim();
+    t=t.replace(/\\\\\(/g,'\\(').replace(/\\\\\)/g,'\\)').replace(/\\\\\[/g,'\\[').replace(/\\\\\]/g,'\\]');
+    t=t.replace(/\\left|\\right/g,'');
+    t=t.replace(/\\!|\\,/g,'');
+    t=t.replace(/\\text\{([^{}]*)\}/g,function(_,a){return esc(a);});
+    t=t.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g,function(_,body){return renderCases(body);});
+    t=replaceTwoArgs(t,'dfrac',function(a,b){return '<span class="coreup-frac"><span>'+a+'</span><span>'+b+'</span></span>';});
+    t=replaceTwoArgs(t,'frac',function(a,b){return '<span class="coreup-frac"><span>'+a+'</span><span>'+b+'</span></span>';});
+    t=replaceTwoArgs(t,'binom',function(a,b){return '<span class="coreup-binom"><span class="coreup-binom-inner"><span>'+a+'</span><span>'+b+'</span></span></span>';});
+    t=replaceOneArg(t,'sqrt',function(a){return '√<span style="text-decoration:overline">'+a+'</span>';});
+    var map={
+      '\\Omega':'Ω','\\omega':'ω','\\mu':'μ','\\sigma':'σ','\\lambda':'λ','\\alpha':'α','\\beta':'β','\\theta':'θ',
+      '\\Phi':'Φ','\\phi':'φ','\\pi':'π','\\bar':'¯','\\leq':'≤','\\le':'≤','\\geq':'≥','\\ge':'≥','\\neq':'≠','\\ne':'≠',
+      '\\infty':'∞','\\pm':'±','\\times':'×','\\cdot':'·','\\div':'÷','\\sim':'∼','\\to':'→','\\rightarrow':'→',
+      '\\sum':'Σ','\\prod':'Π','\\in':'∈','\\notin':'∉','\\approx':'≈','\\cup':'∪','\\cap':'∩','\\emptyset':'∅','\\varnothing':'∅',
+      '\\mathbb{R}':'ℝ','\\mathbb{N}':'ℕ'
+    };
+    Object.keys(map).sort(function(a,b){return b.length-a.length;}).forEach(function(k){t=t.split(k).join(map[k]);});
+    t=t.replace(/\\\{/g,'{').replace(/\\\}/g,'}');
+    t=esc(t);
+    t=t.replace(/&lt;(\/??(?:span|sup|sub|div)[^&]*)&gt;/g,'<$1>');
+    t=t.replace(/&lt;(span class=&quot;coreup-[^&]+&quot;)&gt;/g,function(_,a){return '<'+a.replace(/&quot;/g,'"')+'>';});
+    t=t.replace(/&lt;(span style=&quot;[^&]+&quot;)&gt;/g,function(_,a){return '<'+a.replace(/&quot;/g,'"')+'>';});
+    t=t.replace(/&lt;(div class=&quot;coreup-[^&]+&quot;)&gt;/g,function(_,a){return '<'+a.replace(/&quot;/g,'"')+'>';});
+    t=t.replace(/&lt;\/span&gt;/g,'</span>').replace(/&lt;\/div&gt;/g,'</div>').replace(/&lt;\/sup&gt;/g,'</sup>').replace(/&lt;\/sub&gt;/g,'</sub>');
+    t=t.replace(/\\([A-Za-z]+)/g,'$1');
+    t=t.replace(/\s*([=+−\-×÷≤≥<>])\s*/g,' $1 ');
+    t=renderScripts(t);
+    return t.trim();
+  }
+  function processTextNode(node){
+    var text=node.nodeValue||'';
+    if(!(/[\\][\(\[]/.test(text) || /&lt;span|<span|\\dfrac|\\frac|\\Omega|\\omega|\\mu|\\sigma|\\Phi|\\begin\{cases\}/.test(text))) return false;
+    text=stripOldHtml(text).replace(/\\\\\(/g,'\\(').replace(/\\\\\)/g,'\\)').replace(/\\\\\[/g,'\\[').replace(/\\\\\]/g,'\\]');
+    var re=/\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]/g, m,last=0,changed=false,frag=document.createDocumentFragment();
+    while((m=re.exec(text))){
+      if(m.index>last) frag.appendChild(document.createTextNode(text.slice(last,m.index)));
+      var isBlock=m[0].startsWith('\\['), latex=m[1]!=null?m[1]:m[2];
+      var el=document.createElement(isBlock?'div':'span');
+      el.className='coreup-math'+(isBlock?' coreup-math-block':'');
+      el.innerHTML=renderLatex(latex);
+      frag.appendChild(el);
+      last=m.index+m[0].length; changed=true;
+    }
+    if(changed){ if(last<text.length) frag.appendChild(document.createTextNode(text.slice(last))); node.parentNode.replaceChild(frag,node); }
+    return changed;
+  }
+  function render(root){
+    root=root||document.body;
+    var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){
+      var p=n.parentElement;
+      if(!p || (p.closest&&p.closest('script,style,textarea,option,input,select,mjx-container,.katex,.katex-display,.coreup-math'))) return NodeFilter.FILTER_REJECT;
+      var t=n.nodeValue||'';
+      return /\\[\(\[]|&lt;span|<span|\\dfrac|\\frac|\\Omega|\\omega|\\begin\{cases\}/.test(t)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
+    }});
+    var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(processTextNode);
+  }
+  var timer=null;
+  function schedule(root,delay){clearTimeout(timer);timer=setTimeout(function(){render(root||document.body);},delay==null?40:delay);}
+  window.typesetMath=function(root){schedule(root||document.body,10);};
+  window.CoreUpRenderMath=render;
+  try{typesetMath=window.typesetMath;}catch(_e){}
+  function boot(){schedule(document.body,60);setTimeout(function(){schedule(document.body,0);},300);setTimeout(function(){schedule(document.body,0);},1200);try{new MutationObserver(function(muts){for(var i=0;i<muts.length;i++){if(muts[i].addedNodes&&muts[i].addedNodes.length){schedule(muts[i].target,80);return;}}}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});}catch(_e){}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+
 </body>
 </html>
 
