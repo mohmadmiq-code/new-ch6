@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>جامعة الملك سعود — السنة الأولى المشتركة — STAT 102 | 6.2 المتغيّرات العشوائية المتقطعة وتوزيعاتها الاحتمالية</title>
+  <title>جامعة الملك سعود — السنة الأولى المشتركة — STAT 102 | 6.1 المتغيّرات العشوائية</title>
   <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
   <link rel="stylesheet" href="../assets/vendor/fonts/local-fonts.css">
   <script src="../assets/vendor/katex/katex.min.js"></script>
@@ -2267,7 +2267,7 @@ mjx-container[display="true"]{display:block!important;text-align:center!importan
           <div class="u">جامعة الملك سعود</div>
           <div class="u en">King Saud University</div>
           <div class="d">السنة الأولى المشتركة <span class="sep">|</span> First-Year Common Program</div>
-          <div class="s">6.2 المتغيّرات العشوائية المتقطعة وتوزيعاتها الاحتمالية <span class="sep">|</span> Discrete Random Variables and their Probability Distributions</div>
+          <div class="s">6.1 المتغيّرات العشوائية <span class="sep">|</span> Random Variables</div>
         </div>
       </div>
       <div class="logoWrap" title="شعار الجامعة">
@@ -2354,9 +2354,9 @@ function seededRand(seedStr){
 }
 function randInt(r, lo, hi){ return Math.floor(r()*(hi-lo+1))+lo; }
 
-const STATE_KEY = "stat102_6_2_state_v1";
+const STATE_KEY = "stat102_6_1_state_v1";
 const TIMER_MINUTES = 60;
-const TIMER_KEY = "stat102_6_2_timerEnd_v1";
+const TIMER_KEY = "stat102_6_1_timerEnd_v1";
 let state = loadState() || { currentIndex: 0, answers: {}, grading: {}, variants: {}, order: null, attempts: {}, saveAttempts: {}, locks: {}, outcomes: {}, timerEnded: false, dirty: {}, sidebarFilter: "all", fontSize: 0 };
 state.attempts = state.attempts || {};
 state.saveAttempts = state.saveAttempts || {};
@@ -2944,85 +2944,79 @@ function normalSvg(mu=0, sd=1){
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="230" aria-label="Normal curve"><line x1="${pad}" y1="${base}" x2="${W-pad}" y2="${base}" stroke="rgba(15,23,42,.30)"/><path d="${path}" fill="none" stroke="rgba(3,105,161,.85)" stroke-width="4"/><line x1="${W/2}" y1="${pad}" x2="${W/2}" y2="${base}" stroke="rgba(200,151,42,.75)" stroke-dasharray="6 6"/><text x="${W/2}" y="${base+24}" text-anchor="middle" font-size="14" font-weight="900" direction="ltr">μ=${mu}</text></svg>`;
 }
 
-function q62CoinPmfGen(v){
-  const xs=[0,1,2,3], ps=[1/8,3/8,3/8,1/8];
-  const rows=xs.map((x,i)=>[x, fmt4(ps[i])]);
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة رمي قطعة نقد متوازنة ثلاث مرات، ليكن \\(X\\) عدد مرات ظهور الصورة.</div>${tableHtml(["x","P(X=x)"], rows)}${probBarSvg(xs,ps)}</div>`;
-  return {branches:[{level:"سهل", explain:["عدد الصور في ثلاث رميات يأخذ القيم 0،1،2،3.","كل التوزيع يُبنى من عدد النتائج الموافقة لكل قيمة من أصل 8 نتائج."], formula:["\\(p_X(x)=P(X=x)\\)","\\(\\sum_x p_X(x)=1\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(X\\)", options:shuffleCopy(["{0، 1، 2، 3}","{1، 2، 3}","{0، 1، 2}","{H، T}"], seededRand("opts62a|"+v))},{key:"p1", type:"number", label:"\\(P(X=1)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"pge1", type:"number", label:"\\(P(X\\ge1)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{0، 1، 2، 3}", p1:.38, pge1:.88}, method:["عدد النتائج الكلية \\(2^3=8\\).","\\(P(X=1)=\\frac{3}{8}=0.375\\approx0.38\\).","\\(P(X\\ge1)=1-P(X=0)=1-\\frac18=0.875\\approx0.88\\)."]}]};
+function q61CoinValuesGen(v){
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة رمي قطعة نقد مرتين، ليكن \\(X\\) عدد مرات ظهور الصورة \\(H\\).</div><div style="margin-top:8px">فضاء النتائج: \\(\\Omega=\\{HH,HT,TH,TT\\}\\)</div></div>`;
+  return {branches:[{level:"سهل", explain:["حوّل كل ناتج في فضاء العينة إلى قيمة عددية تمثل عدد مرات ظهور الصورة.","القيم الممكنة فقط هي القيم التي تظهر فعلاً عند تطبيق الدالة."], formula:["\\(X(HH)=2\\), \\(X(HT)=1\\), \\(X(TH)=1\\), \\(X(TT)=0\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم المتغيّر العشوائي \\(X\\)", options:shuffleCopy(["{0، 1، 2}","{1، 2}","{0، 1، 2، 3}","{HH، HT، TH، TT}"], seededRand("opts61a|"+v))},{key:"p1", type:"number", label:"\\(P(X=1)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{0، 1، 2}", p1:0.5}, method:["قيم \\(X\\): عند \\(HH\\) تساوي 2، وعند \\(HT,TH\\) تساوي 1، وعند \\(TT\\) تساوي 0.","إذن \\(X=\\{0,1,2\\}\\).","\\(P(X=1)=P(HT,TH)=\\frac{2}{4}=0.50\\)."]}]};
 }
-function q62CompletePmfGen(v){
-  const r=seededRand("pmf62|"+v); const xs=[0,1,2,3];
-  const ps=shuffleCopy([.15,.25,.35,.25], r); const miss=randInt(r,0,3); const missing=ps[miss];
-  const rows=xs.map((x,i)=>[x, i===miss?"k":ps[i].toFixed(2)]);
-  const pge2=ps[2]+ps[3];
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">دالة الكتلة الاحتمالية لمتغيّر عشوائي متقطع معطاة بالجدول الآتي:</div>${tableHtml(["x","P(X=x)"], rows)}</div>`;
-  return {branches:[{level:"سهل", explain:["أي دالة كتلة احتمالية يجب أن يكون مجموع احتمالاتها مساويًا للواحد.","بعد إيجاد الثابت يمكن حساب أي احتمال بجمع الكتل المناسبة."], formula:["\\(\\sum p_X(x)=1\\)."], promptHtml, parts:[{key:"k", type:"number", label:"قيمة \\(k\\) — قرّب إلى منزلتين", step:"0.01"},{key:"pge2", type:"number", label:"\\(P(X\\ge2)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{k:round2(missing), pge2:round2(pge2)}, method:[`مجموع الاحتمالات المعروفة = \\(${ps.filter((_,i)=>i!==miss).map(p=>p.toFixed(2)).join('+')}\\).`, `إذن \\(k=1-\\) مجموع الباقي \\(=${round2(missing)}\\).`, `\\(P(X\\ge2)=P(X=2)+P(X=3)=${round2(pge2)}\\).`]}]};
+function q61MaxCardsGen(v){
+  const nums=[2,4,6];
+  const outcomes=[]; nums.forEach(a=>nums.forEach(b=>outcomes.push([a,b])));
+  const vals=outcomes.map(o=>Math.max(o[0],o[1]));
+  const pge4=vals.filter(x=>x>=4).length/outcomes.length;
+  const pbetween=vals.filter(x=>x>=2 && x<5.5).length/outcomes.length;
+  const rows=outcomes.map((o,i)=>[`(${o[0]}, ${o[1]})`, vals[i]]);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة سحب بطاقتين مع الإرجاع من صندوق يحوي البطاقات \\(2,4,6\\)، ولتكن \\(X\\) أكبر قيمة بين الرقمين الظاهرين.</div>${tableHtml(["الناتج","قيمة X"], rows)}</div>`;
+  return {branches:[{level:"متوسط", explain:["مع الإرجاع تكون جميع الأزواج التسعة متساوية الاحتمال.","اكتب قيمة \\(X\\) لكل زوج ثم عدّ النتائج الموافقة للحدث المطلوب."], formula:["\\(P(A)=\\frac{\\text{عدد النتائج الموافقة}}{\\text{عدد النتائج الكلية}}\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(X\\)", options:shuffleCopy(["{2، 4، 6}","{4، 6}","{2، 3، 4، 5، 6}","{2، 6}"], seededRand("opts61b|"+v))},{key:"pge4", type:"number", label:"\\(P(X\\ge 4)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"pbetween", type:"number", label:"\\(P(2\\le X<5.5)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{2، 4، 6}", pge4:round2(pge4), pbetween:round2(pbetween)}, method:[`عدد النتائج الكلية \\(=9\\).`, `القيم الممكنة هي \\(2,4,6\\).`, `\\(P(X\\ge4)=\\frac{8}{9}=${round2(pge4)}\\).`, `\\(P(2\\le X<5.5)=P(X=2 \\text{ أو } X=4)=\\frac{4}{9}=${round2(pbetween)}\\).`]}]};
 }
-function q62ExpectationGen(v){
-  const xs=[0,1,2,3], ps=[.10,.30,.40,.20];
-  const ex=sum(xs.map((x,i)=>x*ps[i])); const ex2=sum(xs.map((x,i)=>x*x*ps[i])); const variance=ex2-ex*ex; const sd=Math.sqrt(variance);
-  const rows=xs.map((x,i)=>[x, ps[i].toFixed(2), (x*ps[i]).toFixed(2), (x*x*ps[i]).toFixed(2)]);
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">يعرض الجدول الآتي توزيع عدد السيارات التي تمتلكها أسرة مختارة عشوائيًا.</div>${tableHtml(["x","p(x)","x p(x)","x² p(x)"], rows)}</div>`;
-  return {branches:[{level:"متوسط", explain:["التوقع هو متوسط موزون بقيم الاحتمالات.","التباين يمكن حسابه من \\(E(X^2)-[E(X)]^2\\)."], formula:["\\(E(X)=\\sum x p(x)\\)","\\(V(X)=E(X^2)-[E(X)]^2\\)","\\(\\sigma_X=\\sqrt{V(X)}\\)."], promptHtml, parts:[{key:"ex", type:"number", label:"\\(E(X)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"var", type:"number", label:"\\(V(X)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"sd", type:"number", label:"\\(\\sigma_X\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{ex:round2(ex), var:round2(variance), sd:round2(sd)}, method:[`\\(E(X)=\\sum xp(x)=${round2(ex)}\\).`, `\\(E(X^2)=\\sum x^2p(x)=${round2(ex2)}\\).`, `\\(V(X)=${round2(ex2)}-(${round2(ex)})^2=${round2(variance)}\\).`, `\\(\\sigma_X=\\sqrt{${round2(variance)}}=${round2(sd)}\\).`]}]};
+function q61CdfDevicesGen(v){
+  const xs=[0,1,2], ps=[.25,.50,.25], Fs=[.25,.75,1];
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة فحص جهازين كهربائيين، ليكن \\(X\\) عدد الأجهزة السليمة. افترض أن حالات الجهازين متساوية الاحتمال.</div>${cdfStepSvg(xs,Fs)}</div>`;
+  return {branches:[{level:"متوسط", explain:["دالة التوزيع التراكمي تعطي \\(F_X(x)=P(X\\le x)\\).", "عندما تكون القيمة بين قيمتين ممكنتين للمتغير، تبقى الدالة ثابتة."], formula:["\\(F_X(x)=P(X\\le x)\\)","\\(P(a<X\\le b)=F_X(b)-F_X(a)\\)."], promptHtml, parts:[{key:"f05", type:"number", label:"\\(F_X(0.5)\\)", step:"0.01"},{key:"f15", type:"number", label:"\\(F_X(1.5)\\)", step:"0.01"},{key:"interval", type:"number", label:"\\(P(0.5<X\\le2.5)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{f05:.25, f15:.75, interval:.75}, method:["القيم الممكنة: \\(0,1,2\\) واحتمالاتها: \\(0.25,0.50,0.25\\).","\\(F_X(0.5)=P(X\\le0.5)=P(X=0)=0.25\\).","\\(F_X(1.5)=P(X\\le1.5)=P(X=0)+P(X=1)=0.75\\).","\\(P(0.5<X\\le2.5)=F_X(2.5)-F_X(0.5)=1-0.25=0.75\\)."]}]};
 }
-function q62BinomialGen(v){
-  const r=seededRand("binom62|"+v); const n=choice(r,[6,8,10]); const p=choice(r,[.2,.3,.4,.6]); const k=choice(r,[2,3,4]); const q=1-p;
-  const prob=comb(n,k)*Math.pow(p,k)*Math.pow(q,n-k); const ex=n*p, variance=n*p*q;
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">ليكن \\(X\\) عدد النجاحات في \\(${n}\\) محاولات برنولية مستقلة، واحتمال النجاح في كل محاولة \\(p=${p}\\). احسب المطلوب.</div></div>`;
-  return {branches:[{level:"متوسط", explain:["نستخدم توزيع ذي الحدين عندما يكون عدد المحاولات ثابتًا، والنتائج نجاح/فشل، واحتمال النجاح ثابت، والمحاولات مستقلة."], formula:["\\(P(X=x)=\\binom{n}{x}p^x(1-p)^{n-x}\\)","\\(E(X)=np\\), \\(V(X)=np(1-p)\\)."], promptHtml, parts:[{key:"prob", type:"number", label:`\\(P(X=${k})\\) — قرّب إلى منزلتين`, step:"0.01"},{key:"ex", type:"number", label:"\\(E(X)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"var", type:"number", label:"\\(V(X)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{prob:round2(prob), ex:round2(ex), var:round2(variance)}, method:[`\\(X\\sim Bin(${n},${p})\\).`, `\\(P(X=${k})=\\binom{${n}}{${k}}(${p})^{${k}}(${q.toFixed(2)})^{${n-k}}=${round2(prob)}\\).`, `\\(E(X)=np=${round2(ex)}\\).`, `\\(V(X)=np(1-p)=${round2(variance)}\\).`]}]};
+function q61CdfStepGen(v){
+  const xs=[0,1,2,3], Fs=[.2,.5,.8,1];
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">لتكن دالة التوزيع التراكمي للمتغيّر \\(X\\) معطاة كما يلي:</div><div class="mathBlock" style="margin-top:10px">\\[F_X(x)=\\begin{cases}0,&x<0\\\\0.2,&0\\le x<1\\\\0.5,&1\\le x<2\\\\0.8,&2\\le x<3\\\\1,&x\\ge3\\end{cases}\\]</div>${cdfStepSvg(xs,Fs)}</div>`;
+  return {branches:[{level:"متوسط", explain:["اقرأ القفزات من الدالة؛ كل قفزة تمثل احتمال القيمة عند تلك النقطة.","لا نستخدم \\(\\le\\) و \\(<\\) عشوائياً؛ صيغة \\(a<X\\le b\\) تقابل \\(F(b)-F(a)\\)."], formula:["\\(P(a<X\\le b)=F_X(b)-F_X(a)\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(X\\)", options:shuffleCopy(["{0، 1، 2، 3}","{0.2، 0.5، 0.8، 1}","{1، 2، 3}","{0، 1، 2}"], seededRand("opts61d|"+v))},{key:"p", type:"number", label:"\\(P(1<X\\le3)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{0، 1، 2، 3}", p:.5}, method:["القيم تظهر عند نقاط القفز: \\(0,1,2,3\\).","\\(P(1<X\\le3)=F_X(3)-F_X(1)=1-0.5=0.50\\)."]}]};
 }
-function q62GeometricGen(v){
-  const r=seededRand("geom62|"+v); const p=choice(r,[.2,.25,.3,.4]); const k=choice(r,[3,4,5]); const q=1-p;
-  const pk=Math.pow(q,k-1)*p; const pgt2=Math.pow(q,2); const ex=1/p;
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">مندوب مبيعات يجري اتصالات مستقلة حتى تتم أول عملية بيع. احتمال النجاح في كل اتصال \\(p=${p}\\). ليكن \\(X\\) عدد الاتصالات اللازمة لأول نجاح.</div></div>`;
-  return {branches:[{level:"متوسط", explain:["التوزيع الهندسي يصف عدد المحاولات حتى أول نجاح.","لأن النجاح الأول في المحاولة \\(k\\) يعني فشل \\(k-1\\) محاولات ثم نجاح."], formula:["\\(P(X=x)=(1-p)^{x-1}p\\)","\\(P(X>m)=(1-p)^m\\)","\\(E(X)=\\frac{1}{p}\\)."], promptHtml, parts:[{key:"pk", type:"number", label:`\\(P(X=${k})\\) — قرّب إلى منزلتين`, step:"0.01"},{key:"pgt2", type:"number", label:"\\(P(X>2)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"ex", type:"number", label:"\\(E(X)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{pk:round2(pk), pgt2:round2(pgt2), ex:round2(ex)}, method:[`\\(P(X=${k})=(${q.toFixed(2)})^{${k-1}}(${p})=${round2(pk)}\\).`, `\\(P(X>2)=q^2=(${q.toFixed(2)})^2=${round2(pgt2)}\\).`, `\\(E(X)=1/p=${round2(ex)}\\).`]}]};
-}
-function q62PoissonGen(v){
-  const r=seededRand("pois62|"+v); const lam=choice(r,[3,4,5,8]); const x=choice(r,[2,3,4,5]); const prob=Math.exp(-lam)*Math.pow(lam,x)/fact(x); const sd=Math.sqrt(lam);
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">يستقبل مركز خدمة العملاء في المتوسط \\(\\lambda=${lam}\\) مكالمات في الساعة. ليكن \\(X\\) عدد المكالمات في ساعة محددة.</div></div>`;
-  return {branches:[{level:"متوسط", explain:["يستخدم توزيع بواسون لعدد الحوادث خلال فترة زمنية عندما يكون المتوسط ثابتًا والحوادث مستقلة."], formula:["\\(P(X=x)=e^{-\\lambda}\\frac{\\lambda^x}{x!}\\)","\\(E(X)=V(X)=\\lambda\\), و \\(\\sigma_X=\\sqrt{\\lambda}\\)."], promptHtml, parts:[{key:"prob", type:"number", label:`\\(P(X=${x})\\) — قرّب إلى منزلتين`, step:"0.01"},{key:"sd", type:"number", label:"الانحراف المعياري — قرّب إلى منزلتين", step:"0.01"}], answers:{prob:round2(prob), sd:round2(sd)}, method:[`\\(X\\sim Pois(${lam})\\).`, `\\(P(X=${x})=e^{-${lam}}\\frac{${lam}^{${x}}}{${x}!}=${round2(prob)}\\).`, `\\(\\sigma_X=\\sqrt{${lam}}=${round2(sd)}\\).`]}]};
-}
-function q62HyperGen(v){
-  const N=20,K=6,n=5,x=1; const prob=comb(K,x)*comb(N-K,n-x)/comb(N,n); let pge3=0; for(let j=3;j<=Math.min(K,n);j++) pge3 += comb(K,j)*comb(N-K,n-j)/comb(N,n);
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">صندوق يحوي \\(${N}\\) مصباحًا، منها \\(${K}\\) معطّلة. سُحبت عينة من \\(${n}\\) مصابيح بدون إرجاع. ليكن \\(X\\) عدد المصابيح المعطّلة في العينة.</div></div>`;
-  return {branches:[{level:"صعب", explain:["السحب بدون إرجاع من مجتمع محدود يناسب التوزيع فوق الهندسي.","احسب عدد طرق اختيار المعطّلة والصحيحة مقسومًا على عدد طرق اختيار العينة كلها."], formula:["\\(P(X=x)=\\frac{\\binom{K}{x}\\binom{N-K}{n-x}}{\\binom{N}{n}}\\)."], promptHtml, parts:[{key:"p1", type:"number", label:"\\(P(X=1)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"pge3", type:"number", label:"\\(P(X\\ge3)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{p1:round2(prob), pge3:round2(pge3)}, method:[`\\(P(X=1)=\\frac{\\binom{6}{1}\\binom{14}{4}}{\\binom{20}{5}}=${round2(prob)}\\).`, `\\(P(X\\ge3)=P(3)+P(4)+P(5)=${round2(pge3)}\\).`]}]};
+function q61ConstantGen(v){
+  const k=choice(seededRand("const61|"+v), [4,5,6]);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة رمي حجر نرد مرة واحدة، عُرِّفت الدالة: \\(X(\\omega)=\\omega+(${k}-\\omega)\\).</div></div>`;
+  return {branches:[{level:"سهل", explain:["بسّط الدالة أولاً قبل النظر إلى قيم \\(\\omega\\).", "إذا كانت قيمة المتغير ثابتة لجميع عناصر فضاء العينة فهو متغير وحيد النقطة."], formula:[`\\(X(\\omega)=\\omega+(${k}-\\omega)=${k}\\).`], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم الدالة \\(X\\)", options:shuffleCopy([`{${k}}`,"{1، 2، 3، 4، 5، 6}",`{0، ${k}}`,`{${k-1}، ${k}}`], seededRand("opts61e|"+v))},{key:"prob", type:"number", label:`\\(P(X=${k})\\)`, step:"0.01"}], answers:{values:`{${k}}`, prob:1}, method:[`\\(X(\\omega)=\\omega+(${k}-\\omega)=${k}\\) لجميع قيم \\(\\omega\\).`, `إذن \\(X\\) وحيد النقطة وقيمته ${k}.`, `لذلك \\(P(X=${k})=1\\).`]}]};
 }
 
-function q62BernoulliGen(v){
-  const p=choice(seededRand("bern62|"+v), [.35,.60,.75]);
-  const q=1-p, variance=p*q;
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">ليكن \\(X\\) متغيّرًا يتبع توزيع برنولي بمعلمة \\(p=${p}\\)، حيث \\(X=1\\) عند النجاح و\\(X=0\\) عند الفشل.</div></div>`;
-  return {branches:[{level:"سهل", explain:["في برنولي: احتمال النجاح \\(p\\) واحتمال الفشل \\(1-p\\).","التوقع يساوي \\(p\\)، والتباين يساوي \\(p(1-p)\\)."], formula:["\\(E(X)=p\\)","\\(V(X)=p(1-p)\\)."], promptHtml, parts:[{key:"pfail", type:"number", label:"\\(P(X=0)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"ex", type:"number", label:"\\(E(X)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"var", type:"number", label:"\\(V(X)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{pfail:round2(q), ex:round2(p), var:round2(variance)}, method:[`\\(P(X=0)=1-p=1-${p}=${round2(q)}\\).`,`\\(E(X)=p=${round2(p)}\\).`,`\\(V(X)=p(1-p)=${p}\\times${round2(q)}=${round2(variance)}\\).`]}]};
+function q61DiceSumGen(v){
+  const xs=[2,3,4,5,6,7,8,9,10,11,12];
+  const counts=[1,2,3,4,5,6,5,4,3,2,1];
+  const ps=counts.map(c=>c/36);
+  const rows=xs.map((x,i)=>[x, counts[i], ps[i].toFixed(2)]);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة رمي حجري نرد، ليكن \\(X\\) مجموع العددين الظاهرين.</div>${tableHtml(["x","عدد النتائج","P(X=x)"], rows)}</div>`;
+  return {branches:[{level:"متوسط", explain:["فضاء العينة في رمي حجري نرد يحتوي 36 نتيجة متساوية الاحتمال.","نحسب الاحتمال بعدّ الأزواج التي تعطي المجموع المطلوب."], formula:["\\(P(X=x)=\\frac{\\text{عدد الأزواج التي مجموعها }x}{36}\\)."], promptHtml, parts:[{key:"min", type:"number", label:"أصغر قيمة ممكنة للمتغيّر \\(X\\)"},{key:"max", type:"number", label:"أكبر قيمة ممكنة للمتغيّر \\(X\\)"},{key:"p7", type:"number", label:"\\(P(X=7)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"ple4", type:"number", label:"\\(P(X\\le4)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{min:2,max:12,p7:0.17,ple4:0.17}, method:["أصغر مجموع هو \\(1+1=2\\)، وأكبر مجموع هو \\(6+6=12\\).","عدد الأزواج التي تعطي المجموع 7 يساوي 6، إذن \\(P(X=7)=6/36=0.17\\).","\\(X\\le4\\) يعني المجاميع 2 أو 3 أو 4، وعددها \\(1+2+3=6\\)، إذن الاحتمال \\(6/36=0.17\\)."]}]};
 }
-function q62CdfFromPmfGen(v){
-  const xs=[0,1,2,3], ps=[.15,.25,.35,.25];
-  const Fs=[]; ps.reduce((a,b,i)=>Fs[i]=a+b,0);
+function q61RedBallsGen(v){
+  const p2=comb(4,2)/comb(7,2), p0=comb(3,2)/comb(7,2), pge1=1-p0;
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">صندوق يحوي 4 كرات حمراء و3 زرقاء. سُحبت كرتان على التوالي دون إرجاع. ليكن \\(X\\) عدد الكرات الحمراء المسحوبة.</div></div>`;
+  return {branches:[{level:"متوسط", explain:["المتغيّر \\(X\\) يعدّ عدد الكرات الحمراء في سحبتين؛ لذلك قيمه الممكنة 0 أو 1 أو 2.","عند السحب دون إرجاع نستخدم العدّ أو التوافيق لحساب الاحتمالات."], formula:["\\(P(X=x)=\\frac{\\binom{4}{x}\\binom{3}{2-x}}{\\binom{7}{2}}\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(X\\)", options:shuffleCopy(["{0، 1، 2}","{1، 2}","{0، 1، 2، 3}","{حمراء، زرقاء}"], seededRand("opts61red|"+v))},{key:"p2", type:"number", label:"\\(P(X=2)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"p0", type:"number", label:"\\(P(X=0)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"pge1", type:"number", label:"\\(P(X\\ge1)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{0، 1، 2}", p2:round2(p2), p0:round2(p0), pge1:round2(pge1)}, method:["القيم الممكنة لعدد الكرات الحمراء في سحبتين هي \\(0,1,2\\).",`\\(P(X=2)=\\frac{\\binom{4}{2}}{\\binom{7}{2}}=${round2(p2)}\\).`,`\\(P(X=0)=\\frac{\\binom{3}{2}}{\\binom{7}{2}}=${round2(p0)}\\).`,`\\(P(X\\ge1)=1-P(X=0)=${round2(pge1)}\\).`]}]};
+}
+function q61StudentsPassValuesGen(v){
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">عند اختيار ثلاثة طلاب عشوائيًا، ليكن \\(W\\) عدد الطلاب الناجحين بينهم.</div></div>`;
+  return {branches:[{level:"سهل", explain:["المتغيّر يَعُدّ عدد الناجحين ضمن ثلاثة طلاب.","أقل عدد ممكن هو صفر وأكبر عدد ممكن هو ثلاثة."], formula:["\\(W\\in\\{0,1,2,3\\}\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(W\\)", options:shuffleCopy(["{0، 1، 2، 3}","{1، 2، 3}","{0، 1، 2}","{نجاح، رسوب}"], seededRand("opts61stud|"+v))},{key:"kind", type:"mcq", label:"نوع المتغيّر", options:shuffleCopy(["متغيّر عشوائي متقطع","متغيّر عشوائي مستمر","ليس متغيرًا عشوائيًا","متغير وحيد النقطة"], seededRand("opts61stud2|"+v))}], answers:{values:"{0، 1، 2، 3}", kind:"متغيّر عشوائي متقطع"}, method:["قد يكون عدد الناجحين 0 أو 1 أو 2 أو 3.","لأن مجموعة القيم معدودة ومنفصلة، فهو متغيّر عشوائي متقطع."]}]};
+}
+function q61MinCardsGen(v){
+  const nums=[1,3,5];
+  const outcomes=[]; nums.forEach(a=>nums.forEach(b=>outcomes.push([a,b])));
+  const vals=outcomes.map(o=>Math.min(o[0],o[1]));
+  const p1=vals.filter(x=>x===1).length/9, pge3=vals.filter(x=>x>=3).length/9;
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة سحب بطاقتين مع الإرجاع من صندوق يحوي البطاقات \\(1,3,5\\)، ولتكن \\(X\\) أصغر قيمة بين الرقمين الظاهرين.</div></div>`;
+  return {branches:[{level:"متوسط", explain:["مع الإرجاع توجد تسعة أزواج مرتبة متساوية الاحتمال.","قيمة \\(X\\) هنا هي الأصغر من الرقمين في كل زوج."], formula:["\\(P(A)=\\frac{\\text{عدد النتائج الموافقة}}{9}\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(X\\)", options:shuffleCopy(["{1، 3، 5}","{1، 5}","{3، 5}","{1، 2، 3، 4، 5}"], seededRand("opts61min|"+v))},{key:"p1", type:"number", label:"\\(P(X=1)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"pge3", type:"number", label:"\\(P(X\\ge3)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{1، 3، 5}", p1:round2(p1), pge3:round2(pge3)}, method:["القيم الممكنة للأصغر هي \\(1,3,5\\).",`عدد النتائج التي فيها \\(X=1\\) يساوي 5 من أصل 9، لذلك \\(P(X=1)=${round2(p1)}\\).`,`\\(X\\ge3\\) يحدث عند الأزواج من \\(3,5\\) فقط وعددها 4، لذلك الاحتمال ${round2(pge3)}.`]}]};
+}
+function q61CdfFromTableGen(v){
+  const xs=[0,1,2,3], ps=[.10,.20,.30,.40], Fs=[.10,.30,.60,1];
   const rows=xs.map((x,i)=>[x, ps[i].toFixed(2), Fs[i].toFixed(2)]);
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">يعطى التوزيع الاحتمالي للمتغيّر العشوائي \\(X\\) كما في الجدول.</div>${tableHtml(["x","p_X(x)","F_X(x)"], rows)}${cdfStepSvg(xs,Fs)}</div>`;
-  return {branches:[{level:"متوسط", explain:["للحصول على \\(F_X(x)\\) نجمع جميع الاحتمالات عند القيم الأقل من أو تساوي \\(x\\).","الاحتمال بين حدين يساوي فرق التوزيع التراكمي."], formula:["\\(F_X(x)=\\sum_{t\\le x}p_X(t)\\)."], promptHtml, parts:[{key:"f1", type:"number", label:"\\(F_X(1)\\)", step:"0.01"},{key:"f25", type:"number", label:"\\(F_X(2.5)\\)", step:"0.01"},{key:"interval", type:"number", label:"\\(P(1<X\\le3)\\)", step:"0.01"}], answers:{f1:0.40,f25:0.75,interval:0.60}, method:["\\(F_X(1)=0.15+0.25=0.40\\).","\\(F_X(2.5)=P(X\\le2.5)=P(X=0,1,2)=0.75\\).","\\(P(1<X\\le3)=F_X(3)-F_X(1)=1-0.40=0.60\\)."]}]};
-}
-function q62LinearExpectationGen(v){
-  const xs=[1,2,3,4], ps=[.20,.30,.10,.40];
-  const ex=sum(xs.map((x,i)=>x*ps[i]));
-  const ex2=sum(xs.map((x,i)=>x*x*ps[i]));
-  const vx=ex2-ex*ex;
-  const ey=2*ex+3, vy=4*vx;
-  const rows=xs.map((x,i)=>[x, ps[i].toFixed(2)]);
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">اعتمادًا على التوزيع الاحتمالي الآتي، إذا كان \\(Y=2X+3\\)، أوجد التوقع والتباين لـ \\(Y\\).</div>${tableHtml(["x","P(X=x)"], rows)}</div>`;
-  return {branches:[{level:"صعب", explain:["ابدأ بحساب \\(E(X)\\) و\\(V(X)\\) من الجدول.","نستخدم خواص التوقع والتباين للتحويل الخطي."], formula:["\\(E(aX+b)=aE(X)+b\\)","\\(V(aX+b)=a^2V(X)\\)."], promptHtml, parts:[{key:"ey", type:"number", label:"\\(E(Y)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"vy", type:"number", label:"\\(V(Y)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{ey:round2(ey), vy:round2(vy)}, method:[`\\(E(X)=${round2(ex)}\\)، و \\(E(X^2)=${round2(ex2)}\\).`,`\\(V(X)=E(X^2)-[E(X)]^2=${round2(vx)}\\).`,`\\(E(Y)=2E(X)+3=${round2(ey)}\\).`,`\\(V(Y)=2^2V(X)=${round2(vy)}\\).`]}]};
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">يوضح الجدول توزيع متغيّر عشوائي متقطع \\(X\\) ودالة توزيعه التراكمي.</div>${tableHtml(["x","P(X=x)","F_X(x)"], rows)}${cdfStepSvg(xs,Fs)}</div>`;
+  return {branches:[{level:"متوسط", explain:["دالة التوزيع التراكمي تجمع الاحتمالات حتى القيمة المطلوبة.","احتمال قيمة مفردة يساوي مقدار القفزة عند تلك القيمة."], formula:["\\(F_X(x)=P(X\\le x)\\)","\\(P(a<X\\le b)=F_X(b)-F_X(a)\\)."], promptHtml, parts:[{key:"f2", type:"number", label:"\\(F_X(2)\\)", step:"0.01"},{key:"p2", type:"number", label:"\\(P(X=2)\\)", step:"0.01"},{key:"interval", type:"number", label:"\\(P(1<X\\le3)\\)", step:"0.01"}], answers:{f2:0.60,p2:0.30,interval:0.70}, method:["\\(F_X(2)=P(X\\le2)=0.10+0.20+0.30=0.60\\).","\\(P(X=2)=F_X(2)-F_X(1)=0.60-0.30=0.30\\).","\\(P(1<X\\le3)=F_X(3)-F_X(1)=1-0.30=0.70\\)."]}]};
 }
 
 const TEMPLATES = [
-  {id:"q62_coin_pmf", title:"جدول التوزيع الاحتمالي", icon:"p", gen:q62CoinPmfGen},
-  {id:"q62_complete_pmf", title:"اكتمال دالة الكتلة الاحتمالية", icon:"Σ", gen:q62CompletePmfGen},
-  {id:"q62_expectation", title:"التوقع والتباين لمتغيّر متقطع", icon:"E", gen:q62ExpectationGen},
-  {id:"q62_binomial", title:"توزيع ذي الحدين", icon:"B", gen:q62BinomialGen},
-  {id:"q62_geometric", title:"التوزيع الهندسي", icon:"G", gen:q62GeometricGen},
-  {id:"q62_poisson", title:"توزيع بواسون", icon:"λ", gen:q62PoissonGen},
-  {id:"q62_hyper", title:"التوزيع فوق الهندسي", icon:"H", gen:q62HyperGen},
-  {id:"q62_bernoulli", title:"توزيع برنولي", icon:"0/1", gen:q62BernoulliGen},
-  {id:"q62_cdf_pmf", title:"دالة التوزيع من جدول الكتلة", icon:"F", gen:q62CdfFromPmfGen},
-  {id:"q62_linear_expectation", title:"توقع وتباين تحويل خطي", icon:"aX+b", gen:q62LinearExpectationGen}
+  {id:"q61_coin_values", title:"المتغيّر العشوائي من تجربة رمي قطعة نقد", icon:"X", gen:q61CoinValuesGen},
+  {id:"q61_max_cards", title:"قيم المتغيّر واحتمالاته", icon:"Ω", gen:q61MaxCardsGen},
+  {id:"q61_cdf_devices", title:"دالة التوزيع التراكمي", icon:"F", gen:q61CdfDevicesGen},
+  {id:"q61_cdf_steps", title:"استخدام دالة التوزيع التراكمي", icon:"↗", gen:q61CdfStepGen},
+  {id:"q61_constant", title:"المتغيّر وحيد النقطة", icon:"1", gen:q61ConstantGen},
+  {id:"q61_dice_sum", title:"مجموع العددين عند رمي حجري نرد", icon:"Σ", gen:q61DiceSumGen},
+  {id:"q61_red_balls", title:"عدد الكرات الحمراء دون إرجاع", icon:"R", gen:q61RedBallsGen},
+  {id:"q61_students_pass", title:"عدد الطلاب الناجحين", icon:"W", gen:q61StudentsPassValuesGen},
+  {id:"q61_min_cards", title:"أصغر قيمة عند السحب مع الإرجاع", icon:"m", gen:q61MinCardsGen},
+  {id:"q61_cdf_table", title:"قراءة الاحتمالات من دالة التوزيع", icon:"F", gen:q61CdfFromTableGen}
 ];
 
 
@@ -3716,15 +3710,15 @@ document.addEventListener("fullscreenchange", ()=>{ const btn = document.getElem
 function renderAll(){ renderMain(); renderSidebar(); setProgress(); }
 window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); renderAll(); if(window.__examRunning) startTimer(); else showIntroModal(); });/* Codex Adaptive Mastery Start */
 (function(){
-  const ADAPTIVE_STYLE_ID = "codex-adaptive-mastery-6_2";
-  const MASTERY_VERSION = "chapter6_mastery_6_2_v2_more_questions";
-  const CORE_ORDER = ["q62_coin_pmf", "q62_complete_pmf", "q62_expectation", "q62_binomial", "q62_geometric", "q62_poisson", "q62_hyper", "q62_bernoulli", "q62_cdf_pmf", "q62_linear_expectation"];
-  const ALL_ORDER = ["q62_coin_pmf", "q62_complete_pmf", "q62_expectation", "q62_binomial", "q62_geometric", "q62_poisson", "q62_hyper", "q62_bernoulli", "q62_cdf_pmf", "q62_linear_expectation"];
-  const QUESTION_PROFILES = {"q62_coin_pmf": {"skills": ["q62", "chapter6"], "remediation": ["q62_linear_expectation"], "advancement": ["q62_complete_pmf"]}, "q62_complete_pmf": {"skills": ["q62", "chapter6"], "remediation": ["q62_coin_pmf"], "advancement": ["q62_expectation"]}, "q62_expectation": {"skills": ["q62", "chapter6"], "remediation": ["q62_complete_pmf"], "advancement": ["q62_binomial"]}, "q62_binomial": {"skills": ["q62", "chapter6"], "remediation": ["q62_expectation"], "advancement": ["q62_geometric"]}, "q62_geometric": {"skills": ["q62", "chapter6"], "remediation": ["q62_binomial"], "advancement": ["q62_poisson"]}, "q62_poisson": {"skills": ["q62", "chapter6"], "remediation": ["q62_geometric"], "advancement": ["q62_hyper"]}, "q62_hyper": {"skills": ["q62", "chapter6"], "remediation": ["q62_poisson"], "advancement": ["q62_bernoulli"]}, "q62_bernoulli": {"skills": ["q62", "chapter6"], "remediation": ["q62_hyper"], "advancement": ["q62_cdf_pmf"]}, "q62_cdf_pmf": {"skills": ["q62", "chapter6"], "remediation": ["q62_bernoulli"], "advancement": ["q62_linear_expectation"]}, "q62_linear_expectation": {"skills": ["q62", "chapter6"], "remediation": ["q62_cdf_pmf"], "advancement": ["q62_coin_pmf"]}};
+  const ADAPTIVE_STYLE_ID = "codex-adaptive-mastery-6_1";
+  const MASTERY_VERSION = "chapter6_mastery_6_1_v2_more_questions";
+  const CORE_ORDER = ["q61_coin_values", "q61_max_cards", "q61_cdf_devices", "q61_cdf_steps", "q61_constant", "q61_dice_sum", "q61_red_balls", "q61_students_pass", "q61_min_cards", "q61_cdf_table"];
+  const ALL_ORDER = ["q61_coin_values", "q61_max_cards", "q61_cdf_devices", "q61_cdf_steps", "q61_constant", "q61_dice_sum", "q61_red_balls", "q61_students_pass", "q61_min_cards", "q61_cdf_table"];
+  const QUESTION_PROFILES = {"q61_coin_values": {"skills": ["q61", "chapter6"], "remediation": ["q61_cdf_table"], "advancement": ["q61_max_cards"]}, "q61_max_cards": {"skills": ["q61", "chapter6"], "remediation": ["q61_coin_values"], "advancement": ["q61_cdf_devices"]}, "q61_cdf_devices": {"skills": ["q61", "chapter6"], "remediation": ["q61_max_cards"], "advancement": ["q61_cdf_steps"]}, "q61_cdf_steps": {"skills": ["q61", "chapter6"], "remediation": ["q61_cdf_devices"], "advancement": ["q61_constant"]}, "q61_constant": {"skills": ["q61", "chapter6"], "remediation": ["q61_cdf_steps"], "advancement": ["q61_dice_sum"]}, "q61_dice_sum": {"skills": ["q61", "chapter6"], "remediation": ["q61_constant"], "advancement": ["q61_red_balls"]}, "q61_red_balls": {"skills": ["q61", "chapter6"], "remediation": ["q61_dice_sum"], "advancement": ["q61_students_pass"]}, "q61_students_pass": {"skills": ["q61", "chapter6"], "remediation": ["q61_red_balls"], "advancement": ["q61_min_cards"]}, "q61_min_cards": {"skills": ["q61", "chapter6"], "remediation": ["q61_students_pass"], "advancement": ["q61_cdf_table"]}, "q61_cdf_table": {"skills": ["q61", "chapter6"], "remediation": ["q61_min_cards"], "advancement": ["q61_coin_values"]}};
   const SUPPORT_LIMIT = 0;
   const READINESS_TO_ADVANCE = 0.74;
   const NEED_SUPPORT_BELOW = 0.62;
-  const AI_ADAPTIVE_KEY = "stat102_6_2_ai_adaptive_v1";
+  const AI_ADAPTIVE_KEY = "stat102_6_1_ai_adaptive_v1";
 
   const originalBuildBank = buildBank;
   const originalRenderSidebar = renderSidebar;
@@ -4313,7 +4307,7 @@ window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); re
 
 /* Codex AI Models Logic Start */
 (function(){
-  const AI_MODELS_KEY = "stat102_6_2_ai_models_v1";
+  const AI_MODELS_KEY = "stat102_6_1_ai_models_v1";
   try{ window.AI_MODELS_KEY = AI_MODELS_KEY; }catch(_e){}
 
   function aiStoreGet(key){
@@ -5135,9 +5129,9 @@ window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); re
   if(typeof TEMPLATES === "undefined" || !Array.isArray(TEMPLATES) || !TEMPLATES.length || typeof state === "undefined") return;
 
   const ADAPTIVE_SOURCE = (typeof ADAPTIVE_TEMPLATES_12 !== "undefined" && Array.isArray(ADAPTIVE_TEMPLATES_12) && ADAPTIVE_TEMPLATES_12.length) ? ADAPTIVE_TEMPLATES_12 : TEMPLATES;
-  const MASTERY_VERSION_UNIFIED = "stat102_6_2_unified_v2_more_questions";
-  const MASTERY_CORE_UNIFIED = ["q62_coin_pmf", "q62_complete_pmf", "q62_expectation", "q62_binomial", "q62_geometric", "q62_poisson", "q62_hyper", "q62_bernoulli", "q62_cdf_pmf", "q62_linear_expectation"];
-  const MASTERY_PROFILES_UNIFIED = {"q62_coin_pmf": {"supports": ["q62_complete_pmf", "q62_expectation", "q62_binomial", "q62_geometric"]}, "q62_complete_pmf": {"supports": ["q62_expectation", "q62_binomial", "q62_geometric", "q62_poisson"]}, "q62_expectation": {"supports": ["q62_binomial", "q62_geometric", "q62_poisson", "q62_hyper"]}, "q62_binomial": {"supports": ["q62_geometric", "q62_poisson", "q62_hyper", "q62_bernoulli"]}, "q62_geometric": {"supports": ["q62_poisson", "q62_hyper", "q62_bernoulli", "q62_cdf_pmf"]}, "q62_poisson": {"supports": ["q62_hyper", "q62_bernoulli", "q62_cdf_pmf", "q62_linear_expectation"]}, "q62_hyper": {"supports": ["q62_bernoulli", "q62_cdf_pmf", "q62_linear_expectation", "q62_coin_pmf"]}, "q62_bernoulli": {"supports": ["q62_cdf_pmf", "q62_linear_expectation", "q62_coin_pmf", "q62_complete_pmf"]}, "q62_cdf_pmf": {"supports": ["q62_linear_expectation", "q62_coin_pmf", "q62_complete_pmf", "q62_expectation"]}, "q62_linear_expectation": {"supports": ["q62_coin_pmf", "q62_complete_pmf", "q62_expectation", "q62_binomial"]}};
+  const MASTERY_VERSION_UNIFIED = "stat102_6_1_unified_v2_more_questions";
+  const MASTERY_CORE_UNIFIED = ["q61_coin_values", "q61_max_cards", "q61_cdf_devices", "q61_cdf_steps", "q61_constant", "q61_dice_sum", "q61_red_balls", "q61_students_pass", "q61_min_cards", "q61_cdf_table"];
+  const MASTERY_PROFILES_UNIFIED = {"q61_coin_values": {"supports": ["q61_max_cards", "q61_cdf_devices", "q61_cdf_steps", "q61_constant"]}, "q61_max_cards": {"supports": ["q61_cdf_devices", "q61_cdf_steps", "q61_constant", "q61_dice_sum"]}, "q61_cdf_devices": {"supports": ["q61_cdf_steps", "q61_constant", "q61_dice_sum", "q61_red_balls"]}, "q61_cdf_steps": {"supports": ["q61_constant", "q61_dice_sum", "q61_red_balls", "q61_students_pass"]}, "q61_constant": {"supports": ["q61_dice_sum", "q61_red_balls", "q61_students_pass", "q61_min_cards"]}, "q61_dice_sum": {"supports": ["q61_red_balls", "q61_students_pass", "q61_min_cards", "q61_cdf_table"]}, "q61_red_balls": {"supports": ["q61_students_pass", "q61_min_cards", "q61_cdf_table", "q61_coin_values"]}, "q61_students_pass": {"supports": ["q61_min_cards", "q61_cdf_table", "q61_coin_values", "q61_max_cards"]}, "q61_min_cards": {"supports": ["q61_cdf_table", "q61_coin_values", "q61_max_cards", "q61_cdf_devices"]}, "q61_cdf_table": {"supports": ["q61_coin_values", "q61_max_cards", "q61_cdf_devices", "q61_cdf_steps"]}};
 
   function adaptiveSaveState(){
     try{ if(typeof saveState === "function") saveState(); }catch(e){}
@@ -6273,335 +6267,40 @@ window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); re
 
 
 <!-- Core Up V27: stable MathJax renderer from assets; no KaTeX fallback and no HTML math conversion -->
-<script id="coreup-v27-stable-math-assets">
-(function(){
-  if(window.__COREUP_V27_STABLE_MATH__) return;
-  window.__COREUP_V27_STABLE_MATH__ = true;
-
-  // Stop older fallback converters from turning LaTeX into visible <span> text.
-  window._fallbackTypesetMath = function(){};
-  try{ _fallbackTypesetMath = window._fallbackTypesetMath; }catch(_e){}
-
-  function unique(arr){ var out=[], seen={}; arr.forEach(function(x){ if(x && !seen[x]){ seen[x]=1; out.push(x); }}); return out; }
-  function assetBases(){
-    var p=(location.pathname||'').split('/').filter(Boolean);
-    var list=['../assets/','./assets/','../../assets/'];
-    if(p.length>=1) list.push('/'+p[0]+'/assets/');
-    list.push('/assets/');
-    return unique(list);
-  }
-  window.COREUP_ASSET_BASES = window.COREUP_ASSET_BASES || assetBases();
-
-  function testImage(url){
-    return new Promise(function(resolve){
-      var im=new Image();
-      im.onload=function(){resolve(true)};
-      im.onerror=function(){resolve(false)};
-      im.src=url + (url.indexOf('?')>-1?'&':'?') + 'v=27';
-    });
-  }
-  async function findImage(rel){
-    for(var i=0;i<window.COREUP_ASSET_BASES.length;i++){
-      var url=window.COREUP_ASSET_BASES[i]+rel;
-      try{ if(await testImage(url)) return url; }catch(_e){}
-    }
-    return null;
-  }
-  async function fixImages(){
-    var pairs=[
-      ['img[src*="ksu_logo"],img[alt*="King Saud"],img[alt*="جامعة"]','img/ksu_logo.png'],
-      ['img[src*="core_up_icon"],img[alt*="Core Up"],img[title*="Core Up"]','img/core_up_icon.png'],
-      ['img[src*="core_up_logo"]','img/core_up_logo.png'],
-      ['img[src*="core_up_mark"]','img/core_up_mark.png'],
-      ['img[src*="core_up_full"]','img/core_up_full.png']
-    ];
-    for(var i=0;i<pairs.length;i++){
-      var url=await findImage(pairs[i][1]);
-      if(!url) continue;
-      document.querySelectorAll(pairs[i][0]).forEach(function(img){ img.src=url; });
-    }
-  }
-
-  function cleanRawMathText(root){
-    root=root||document.body;
-    try{
-      var walker=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-        acceptNode:function(n){
-          var p=n.parentElement;
-          if(!p || (p.closest && p.closest('script,style,textarea,option,input,select,mjx-container,.katex,.katex-display'))) return NodeFilter.FILTER_REJECT;
-          var t=n.nodeValue||'';
-          return (/\\\\[\(\)\[\]]/.test(t) || /&lt;\/?span|<\/?span|class\s*=\s*["']stat-/i.test(t)) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-        }
-      });
-      var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
-      nodes.forEach(function(n){
-        var t=n.nodeValue||'';
-        // decode visible escaped tags, then remove any leftover formatter tags from old versions
-        var ta=document.createElement('textarea'); ta.innerHTML=t; t=ta.value;
-        t=t.replace(/<\/?span[^>]*>/gi,'').replace(/class\s*=\s*["'][^"']*["']/gi,'');
-        // if old code doubled the math delimiters, reduce them to valid MathJax delimiters
-        t=t.replace(/\\\\\(/g,'\\(').replace(/\\\\\)/g,'\\)').replace(/\\\\\[/g,'\\[').replace(/\\\\\]/g,'\\]');
-        n.nodeValue=t;
-      });
-    }catch(e){}
-  }
-
-  function configureMathJax(){
-    window.MathJax = window.MathJax || {};
-    window.MathJax.tex = Object.assign({
-      inlineMath: [["\\(","\\)"],["$","$"]],
-      displayMath: [["\\[","\\]"],["$$","$$"]],
-      processEscapes: true,
-      packages: {'[+]':['ams']}
-    }, window.MathJax.tex || {});
-    window.MathJax.options = Object.assign({
-      skipHtmlTags: ['script','noscript','style','textarea','pre','code','option','input','select']
-    }, window.MathJax.options || {});
-    window.MathJax.svg = Object.assign({fontCache:'global'}, window.MathJax.svg || {});
-  }
-  configureMathJax();
-
-  function loadScript(url){
-    return new Promise(function(resolve,reject){
-      var existing=[].slice.call(document.scripts||[]).some(function(s){return s.src===url;});
-      if(existing){ resolve(url); return; }
-      var s=document.createElement('script'); s.src=url; s.async=false;
-      s.onload=function(){resolve(url)}; s.onerror=function(){s.remove(); reject(new Error(url));};
-      document.head.appendChild(s);
-    });
-  }
-  async function ensureMathJax(){
-    configureMathJax();
-    if(window.MathJax && typeof window.MathJax.typesetPromise==='function') return true;
-    for(var i=0;i<window.COREUP_ASSET_BASES.length;i++){
-      try{
-        await loadScript(window.COREUP_ASSET_BASES[i]+'vendor/mathjax/tex-svg.js');
-        if(window.MathJax && window.MathJax.startup && window.MathJax.startup.promise){
-          await window.MathJax.startup.promise.catch(function(){});
-        }
-        if(window.MathJax && typeof window.MathJax.typesetPromise==='function') return true;
-      }catch(_e){}
-    }
-    return !!(window.MathJax && typeof window.MathJax.typesetPromise==='function');
-  }
-
-  var renderTimer=null;
-  async function renderMath(root){
-    root=root||document.body;
-    cleanRawMathText(root);
-    var ok=await ensureMathJax();
-    if(!ok) return;
-    try{
-      if(window.MathJax.typesetClear) window.MathJax.typesetClear([root]);
-    }catch(_e){}
-    try{
-      await window.MathJax.typesetPromise([root]);
-    }catch(e){ console.warn('Core Up MathJax render warning', e); }
-  }
-  function schedule(root, delay){
-    clearTimeout(renderTimer);
-    renderTimer=setTimeout(function(){ renderMath(root||document.body); }, delay==null?90:delay);
-  }
-
-  window.typesetMath = function(root){ schedule(root||document.body, 10); };
-  window.CoreUpTypesetMathV27 = renderMath;
-  try{ typesetMath = window.typesetMath; }catch(_e){}
-
-  function boot(){
-    fixImages();
-    schedule(document.body, 60);
-    setTimeout(function(){fixImages(); schedule(document.body, 0);}, 500);
-    setTimeout(function(){schedule(document.body, 0);}, 1200);
-    try{
-      var mo=new MutationObserver(function(muts){
-        var target=null;
-        for(var i=0;i<muts.length;i++){
-          if(muts[i].addedNodes && muts[i].addedNodes.length){ target=muts[i].target; break; }
-        }
-        if(target) schedule(target, 120);
-      });
-      mo.observe(document.documentElement,{childList:true,subtree:true,characterData:true});
-    }catch(_e){}
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
-})();
-</script>
 
 
-<!-- Core Up V29: clean local math renderer (single renderer, no escaped HTML) -->
-<style id="coreup-v29-math-style">
-  .coreup-math{direction:ltr!important;unicode-bidi:isolate!important;display:inline-flex;align-items:center;gap:2px;font-family:"Cambria Math","Times New Roman",serif!important;font-weight:800;line-height:1.55;white-space:nowrap;vertical-align:middle;color:#0f172a;background:#f8fafc;border:1px solid #dbe7f2;border-radius:8px;padding:2px 7px;margin:0 2px;max-width:100%;overflow-x:auto;}
-  .coreup-math-block{display:flex!important;width:max-content;max-width:100%;margin:10px auto;padding:8px 12px;justify-content:center;text-align:center;}
-  .coreup-frac{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;vertical-align:middle;line-height:1.15;margin:0 2px;}
-  .coreup-frac>span:first-child{display:block;border-bottom:1.7px solid currentColor;padding:0 5px 2px;}
-  .coreup-frac>span:last-child{display:block;padding:2px 5px 0;}
-  .coreup-binom{display:inline-flex;align-items:center;gap:2px;margin:0 2px;}
-  .coreup-binom::before{content:"(";font-size:1.35em;line-height:.8}.coreup-binom::after{content:")";font-size:1.35em;line-height:.8}
-  .coreup-binom-inner{display:inline-flex;flex-direction:column;align-items:center;line-height:1.05}.coreup-binom-inner span{display:block;padding:0 2px;}
-  .coreup-cases{display:inline-table;border-collapse:collapse;vertical-align:middle;margin:0 4px;text-align:left;direction:ltr;}
-  .coreup-cases::before{content:"{";display:table-cell;font-size:2.8em;line-height:1;vertical-align:middle;padding-right:6px;}
-  .coreup-cases-rows{display:table-cell;vertical-align:middle}.coreup-cases-row{display:grid;grid-template-columns:auto auto;gap:12px;line-height:1.55;}.coreup-cases-cond{color:#334155;font-weight:700;}
-  .sai21-msg-content .coreup-math{font-size:12px;padding:1px 5px}.sai21-msg-content .coreup-math-block{font-size:12px;margin:7px auto;}
+<!-- Core Up V30: clean local math renderer (single renderer, no escaped HTML) -->
+<style id="coreup-v30-internal-math-style">
+  .coreup-math{direction:ltr;unicode-bidi:isolate;display:inline-flex;align-items:center;max-width:100%;overflow-x:auto;vertical-align:middle;background:#f8fafc;border:1px solid #dbeafe;border-radius:8px;padding:2px 7px;margin:0 2px;font-family:"Times New Roman","Cambria Math",serif;font-size:.98em;font-weight:800;color:#0f172a;line-height:1.55;white-space:nowrap}
+  .coreup-math-block{display:flex;width:max-content;max-width:100%;margin:10px auto;padding:7px 12px;justify-content:center;text-align:center;white-space:nowrap}
+  .sai21-msg-content .coreup-math{font-size:11.5px;padding:1px 5px;line-height:1.45}
+  .sai21-msg-content .coreup-math-block{font-size:11.5px;margin:7px auto}
 </style>
-<script id="coreup-v29-clean-math-renderer">
+<script id="coreup-v30-internal-math-and-random-bank">
 (function(){
-  if(window.__COREUP_V29_CLEAN_MATH__) return;
-  window.__COREUP_V29_CLEAN_MATH__=true;
-  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m];});}
-  function decodeEntities(s){var t=document.createElement('textarea');t.innerHTML=String(s==null?'':s);return t.value;}
-  function stripOldHtml(s){
-    s=decodeEntities(s);
-    s=s.replace(/<\/?(?:span|div|sup|sub)[^>]*>/gi,'');
-    s=s.replace(/class\s*=\s*["'][^"']*["']/gi,'');
-    s=s.replace(/&lt;\/?(?:span|div|sup|sub)[^&]*&gt;/gi,'');
-    return s.replace(/\s+/g,' ').trim();
-  }
-  function normalizeSlashes(s){
-    return String(s||'')
-      .replace(/\\\\\(/g,'\\(').replace(/\\\\\)/g,'\\)')
-      .replace(/\\\\\[/g,'\\[').replace(/\\\\\]/g,'\\]')
-      .replace(/\\\\([A-Za-z]+)/g,'\\$1')
-      .replace(/\\\\([{}])/g,'\\$1');
-  }
-  function readGroup(str,pos){
-    if(str[pos]!=="{") return null;
-    var depth=0;
-    for(var i=pos;i<str.length;i++){
-      var ch=str[i], prev=str[i-1];
-      if(ch==='{' && prev!=='\\') depth++;
-      else if(ch==='}' && prev!=='\\'){
-        depth--; if(depth===0) return {value:str.slice(pos+1,i),end:i+1};
-      }
-    }
-    return null;
-  }
-  function makeRenderer(){
-    var slots=[];
-    function ph(html){var key='@@COREUP_HTML_'+(slots.length)+'@@'; slots.push({key:key,html:html}); return key;}
-    function restore(t){slots.forEach(function(s){t=t.split(s.key).join(s.html);});return t;}
-    function replaceTwoArgs(str,cmd,fn){
-      var out='',i=0,token='\\'+cmd;
-      while(i<str.length){
-        if(str.startsWith(token,i)){
-          var p=i+token.length; while(str[p]===' ')p++;
-          var a=readGroup(str,p);
-          if(a){var q=a.end; while(str[q]===' ')q++; var b=readGroup(str,q); if(b){out+=fn(renderLatex(a.value),renderLatex(b.value)); i=b.end; continue;}}
-        }
-        out+=str[i++];
-      }
-      return out;
-    }
-    function replaceOneArg(str,cmd,fn){
-      var out='',i=0,token='\\'+cmd;
-      while(i<str.length){
-        if(str.startsWith(token,i)){
-          var p=i+token.length; while(str[p]===' ')p++;
-          var a=readGroup(str,p);
-          if(a){out+=fn(renderLatex(a.value)); i=a.end; continue;}
-        }
-        out+=str[i++];
-      }
-      return out;
-    }
-    function splitRows(body){
-      var rows=[],cur='',depth=0;
-      for(var i=0;i<body.length;i++){
-        var ch=body[i], prev=body[i-1];
-        if(ch==='{' && prev!=='\\') depth++;
-        if(ch==='}' && prev!=='\\') depth=Math.max(0,depth-1);
-        if(ch==='\\' && body[i+1]==='\\' && depth===0){rows.push(cur);cur='';i++;continue;}
-        cur+=ch;
-      }
-      if(cur.trim()) rows.push(cur); return rows;
-    }
-    function splitAmp(row){
-      var parts=[],cur='',depth=0;
-      for(var i=0;i<row.length;i++){
-        var ch=row[i], prev=row[i-1];
-        if(ch==='{'&&prev!=='\\')depth++; if(ch==='}'&&prev!=='\\')depth=Math.max(0,depth-1);
-        if(ch==='&'&&depth===0){parts.push(cur);cur='';continue;} cur+=ch;
-      }
-      parts.push(cur); return parts;
-    }
-    function renderCases(body){
-      var rows=splitRows(body).map(function(r){var p=splitAmp(r);return '<div class="coreup-cases-row"><span>'+renderLatex(p[0]||'')+'</span><span class="coreup-cases-cond">'+renderLatex(p.slice(1).join(' '))+'</span></div>';}).join('');
-      return ph('<span class="coreup-cases"><span class="coreup-cases-rows">'+rows+'</span></span>');
-    }
-    function renderScripts(t){
-      function braced(re,tag){return t.replace(re,function(_,a){return ph('<'+tag+'>'+renderLatex(a)+'</'+tag+'>');});}
-      t=braced(/\^\{([^{}]*)\}/g,'sup');
-      t=braced(/_\{([^{}]*)\}/g,'sub');
-      t=t.replace(/\^([A-Za-z0-9+\-]+)/g,function(_,a){return ph('<sup>'+esc(a)+'</sup>');});
-      t=t.replace(/_([A-Za-z0-9+\-]+)/g,function(_,a){return ph('<sub>'+esc(a)+'</sub>');});
-      return t;
-    }
-    function renderLatex(src){
-      var t=normalizeSlashes(stripOldHtml(src));
-      t=t.replace(/\\left|\\right/g,'').replace(/\\!|\\,/g,'');
-      t=t.replace(/\\text\{([^{}]*)\}/g,function(_,a){return a;});
-      t=t.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g,function(_,body){return renderCases(body);});
-      t=replaceTwoArgs(t,'dfrac',function(a,b){return ph('<span class="coreup-frac"><span>'+a+'</span><span>'+b+'</span></span>');});
-      t=replaceTwoArgs(t,'frac',function(a,b){return ph('<span class="coreup-frac"><span>'+a+'</span><span>'+b+'</span></span>');});
-      t=replaceTwoArgs(t,'binom',function(a,b){return ph('<span class="coreup-binom"><span class="coreup-binom-inner"><span>'+a+'</span><span>'+b+'</span></span></span>');});
-      t=replaceOneArg(t,'sqrt',function(a){return ph('√<span style="text-decoration:overline">'+a+'</span>');});
-      var map={'\\mathbb{R}':'ℝ','\\mathbb{N}':'ℕ','\\Omega':'Ω','\\omega':'ω','\\mu':'μ','\\sigma':'σ','\\lambda':'λ','\\alpha':'α','\\beta':'β','\\theta':'θ','\\Phi':'Φ','\\phi':'φ','\\pi':'π','\\leq':'≤','\\le':'≤','\\geq':'≥','\\ge':'≥','\\neq':'≠','\\ne':'≠','\\infty':'∞','\\pm':'±','\\times':'×','\\cdot':'·','\\div':'÷','\\sim':'∼','\\to':'→','\\rightarrow':'→','\\sum':'Σ','\\prod':'Π','\\in':'∈','\\notin':'∉','\\approx':'≈','\\cup':'∪','\\cap':'∩','\\emptyset':'∅','\\varnothing':'∅'};
-      Object.keys(map).sort(function(a,b){return b.length-a.length;}).forEach(function(k){t=t.split(k).join(map[k]);});
-      t=t.replace(/\\\{/g,'{').replace(/\\\}/g,'}');
-      t=renderScripts(t);
-      t=t.replace(/\\([A-Za-z]+)/g,'$1');
-      t=t.replace(/\s*([=+−\-×÷≤≥<>])\s*/g,' $1 ');
-      t=esc(t);
-      return restore(t).trim();
-    }
-    return renderLatex;
-  }
-  function makeMathEl(latex,isBlock){
-    var el=document.createElement(isBlock?'div':'span');
-    el.className='coreup-math'+(isBlock?' coreup-math-block':'');
-    el.innerHTML=makeRenderer()(latex);
-    return el;
-  }
-  function processTextNode(node){
-    var text=node.nodeValue||'';
-    if(!(/[\\][\(\[]/.test(text) || /&lt;span|<span|\\dfrac|\\frac|\\binom|\\Omega|\\omega|\\mu|\\sigma|\\Phi|\\begin\{cases\}/.test(text))) return false;
-    text=normalizeSlashes(stripOldHtml(text));
-    var re=/\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]/g, m,last=0,changed=false,frag=document.createDocumentFragment();
-    while((m=re.exec(text))){
-      if(m.index>last) frag.appendChild(document.createTextNode(text.slice(last,m.index)));
-      var isBlock=m[0].startsWith('\\['), latex=m[1]!=null?m[1]:m[2];
-      frag.appendChild(makeMathEl(latex,isBlock));
-      last=m.index+m[0].length; changed=true;
-    }
-    if(!changed && /<span|&lt;span|\\dfrac|\\frac|\\binom|\\Omega|\\omega|\\mu|\\sigma|\\Phi|\\begin\{cases\}/.test(text)){
-      frag.appendChild(makeMathEl(text,false)); changed=true; last=text.length;
-    }
-    if(changed){ if(last<text.length) frag.appendChild(document.createTextNode(text.slice(last))); node.parentNode.replaceChild(frag,node); }
-    return changed;
-  }
-  function render(root){
-    root=root||document.body;
-    var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){
-      var p=n.parentElement;
-      if(!p || (p.closest&&p.closest('script,style,textarea,option,input,select,mjx-container,.katex,.katex-display,.coreup-math'))) return NodeFilter.FILTER_REJECT;
-      var t=n.nodeValue||'';
-      return /\\[\(\[]|&lt;span|<span|\\dfrac|\\frac|\\binom|\\Omega|\\omega|\\mu|\\sigma|\\Phi|\\begin\{cases\}/.test(t)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
-    }});
-    var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode); nodes.forEach(processTextNode);
-  }
-  var timer=null;
-  function schedule(root,delay){clearTimeout(timer);timer=setTimeout(function(){render(root||document.body);},delay==null?40:delay);}
-  window.typesetMath=function(root){schedule(root||document.body,10);};
-  window.CoreUpRenderMath=render;
-  try{typesetMath=window.typesetMath;}catch(_e){}
-  function boot(){schedule(document.body,60);setTimeout(function(){schedule(document.body,0);},250);setTimeout(function(){schedule(document.body,0);},1000);try{new MutationObserver(function(muts){for(var i=0;i<muts.length;i++){if(muts[i].addedNodes&&muts[i].addedNodes.length){schedule(muts[i].target,70);return;}}}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});}catch(_e){}}
+  if(window.__COREUP_V30_INTERNAL__) return;
+  window.__COREUP_V30_INTERNAL__ = true;
+  function decodeEntities(s){s=String(s==null?'':s);for(var i=0;i<3;i++){var t=document.createElement('textarea');t.innerHTML=s;var v=t.value;if(v===s)break;s=v;}return s;}
+  function stripInjectedHtml(s){s=decodeEntities(s);s=s.replace(/<\/?(?:span|div|sup|sub|mjx-container|mjx-assistive-mml|svg|g|path|use|mrow|mi|mo|mn|msup|msub|mfrac|msqrt|math)[^>]*>/gi,'');s=s.replace(/class\s*=\s*['\"][^'\"]*['\"]/gi,'');s=s.replace(/style\s*=\s*['\"][^'\"]*['\"]/gi,'');s=s.replace(/&lt;[^&]*&gt;/gi,'');return s;}
+  function normalizeSlashes(s){return String(s||'').replace(/\\\\\(/g,'\\(').replace(/\\\\\)/g,'\\)').replace(/\\\\\[/g,'\\[').replace(/\\\\\]/g,'\\]').replace(/\\\\([A-Za-z]+)/g,'\\$1').replace(/\\\\([{}])/g,'\\$1');}
+  function readGroup(str,pos){if(str[pos]!=='{')return null;var depth=0;for(var i=pos;i<str.length;i++){var ch=str[i],prev=str[i-1];if(ch==='{'&&prev!=='\\')depth++;else if(ch==='}'&&prev!=='\\'){depth--;if(depth===0)return{value:str.slice(pos+1,i),end:i+1};}}return null;}
+  function replaceTwoArgs(str,cmd,fn){var out='',i=0,token='\\'+cmd;while(i<str.length){if(str.startsWith(token,i)){var p=i+token.length;while(str[p]===' ')p++;var a=readGroup(str,p);if(a){var q=a.end;while(str[q]===' ')q++;var b=readGroup(str,q);if(b){out+=fn(latexPlain(a.value),latexPlain(b.value));i=b.end;continue;}}}out+=str[i++];}return out;}
+  function replaceOneArg(str,cmd,fn){var out='',i=0,token='\\'+cmd;while(i<str.length){if(str.startsWith(token,i)){var p=i+token.length;while(str[p]===' ')p++;var a=readGroup(str,p);if(a){out+=fn(latexPlain(a.value));i=a.end;continue;}}out+=str[i++];}return out;}
+  function splitCasesRows(body){var rows=[],cur='',depth=0;for(var i=0;i<body.length;i++){var ch=body[i],prev=body[i-1];if(ch==='{'&&prev!=='\\')depth++;if(ch==='}'&&prev!=='\\')depth=Math.max(0,depth-1);if(ch==='\\'&&body[i+1]==='\\'&&depth===0){rows.push(cur);cur='';i++;continue;}cur+=ch;}if(cur.trim())rows.push(cur);return rows;}
+  function splitAmp(row){var parts=[],cur='',depth=0;for(var i=0;i<row.length;i++){var ch=row[i],prev=row[i-1];if(ch==='{'&&prev!=='\\')depth++;if(ch==='}'&&prev!=='\\')depth=Math.max(0,depth-1);if(ch==='&'&&depth===0){parts.push(cur);cur='';continue;}cur+=ch;}parts.push(cur);return parts;}
+  function renderCasesPlain(body){return '{ '+splitCasesRows(body).map(function(r){var p=splitAmp(r);var left=latexPlain(p[0]||'');var right=latexPlain(p.slice(1).join(' '));return right?(left+' إذا '+right):left;}).join(' ؛ ')+' }';}
+  function latexPlain(src){var t=normalizeSlashes(stripInjectedHtml(src));t=t.replace(/\\left|\\right|\\!|\\,/g,'');t=t.replace(/\\text\{([^{}]*)\}/g,function(_,a){return a;});t=t.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g,function(_,body){return renderCasesPlain(body);});t=replaceTwoArgs(t,'dfrac',function(a,b){return '('+a+')/('+b+')';});t=replaceTwoArgs(t,'frac',function(a,b){return '('+a+')/('+b+')';});t=replaceTwoArgs(t,'binom',function(a,b){return 'C('+a+','+b+')';});t=replaceOneArg(t,'sqrt',function(a){return '√('+a+')';});var map={'\\mathbb{R}':'ℝ','\\mathbb{N}':'ℕ','\\Omega':'Ω','\\omega':'ω','\\mu':'μ','\\sigma':'σ','\\lambda':'λ','\\alpha':'α','\\beta':'β','\\theta':'θ','\\Phi':'Φ','\\phi':'φ','\\pi':'π','\\leq':'≤','\\le':'≤','\\geq':'≥','\\ge':'≥','\\neq':'≠','\\ne':'≠','\\infty':'∞','\\pm':'±','\\times':'×','\\cdot':'·','\\div':'÷','\\sim':'∼','\\to':'→','\\rightarrow':'→','\\sum':'Σ','\\prod':'Π','\\in':'∈','\\notin':'∉','\\approx':'≈','\\cup':'∪','\\cap':'∩','\\emptyset':'∅','\\varnothing':'∅'};Object.keys(map).sort(function(a,b){return b.length-a.length;}).forEach(function(k){t=t.split(k).join(map[k]);});t=t.replace(/\\\{/g,'{').replace(/\\\}/g,'}');t=t.replace(/\^\{([^{}]+)\}/g,'^($1)').replace(/_\{([^{}]+)\}/g,'_($1)');t=t.replace(/\^([A-Za-z0-9+\-]+)/g,'^$1').replace(/_([A-Za-z0-9+\-]+)/g,'_$1');t=t.replace(/\\([A-Za-z]+)/g,'$1');t=t.replace(/\\\(/g,'').replace(/\\\)/g,'').replace(/\\\[/g,'').replace(/\\\]/g,'');t=t.replace(/[<>]/g,'');t=t.replace(/\s*([=+−\-×÷≤≥<>])\s*/g,' $1 ');t=t.replace(/\s+/g,' ').trim();return t;}
+  function makeMathEl(latex,isBlock){var el=document.createElement(isBlock?'div':'span');el.className='coreup-math'+(isBlock?' coreup-math-block':'');el.textContent=latexPlain(latex);return el;}
+  function needsMath(t){return /\\[\(\[]|<span|&lt;span|\\dfrac|\\frac|\\binom|\\Omega|\\omega|\\mu|\\sigma|\\lambda|\\Phi|\\begin\{cases\}|\\leq|\\geq|\\sum|\\sim/.test(t||'');}
+  function processTextNode(node){var raw=node.nodeValue||'';if(!needsMath(raw))return false;var text=normalizeSlashes(stripInjectedHtml(raw));var re=/\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]/g;var frag=document.createDocumentFragment(),last=0,m,changed=false;while((m=re.exec(text))){if(m.index>last)frag.appendChild(document.createTextNode(text.slice(last,m.index)));frag.appendChild(makeMathEl(m[1]!=null?m[1]:m[2],m[0].startsWith('\\[')));last=m.index+m[0].length;changed=true;}if(!changed&&needsMath(text)){frag.appendChild(makeMathEl(text,false));last=text.length;changed=true;}if(changed){if(last<text.length)frag.appendChild(document.createTextNode(text.slice(last)));node.parentNode.replaceChild(frag,node);}return changed;}
+  function renderMath(root){root=root||document.body;if(!root)return;var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){var p=n.parentElement;if(!p||(p.closest&&p.closest('script,style,textarea,option,input,select,.coreup-math,mjx-container,.katex,.katex-display')))return NodeFilter.FILTER_REJECT;return needsMath(n.nodeValue||'')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;}});var nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);nodes.forEach(processTextNode);}
+  var timer=null;function schedule(root,delay){clearTimeout(timer);timer=setTimeout(function(){renderMath(root||document.body);},delay==null?25:delay);}window.typesetMath=function(root){schedule(root||document.body,10);};window.CoreUpRenderMath=renderMath;try{typesetMath=window.typesetMath;}catch(_e){}
+  function seedRand(seed){var h=2166136261;seed=String(seed||'');for(var i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619);}return function(){h+=0x6D2B79F5;var t=h;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+  function shuffle(arr,r){for(var i=arr.length-1;i>0;i--){var j=Math.floor(r()*(i+1));var x=arr[i];arr[i]=arr[j];arr[j]=x;}return arr;}
+  function installRandomBank(){if(typeof TEMPLATES==='undefined'||!Array.isArray(TEMPLATES)||typeof state==='undefined')return;var count=Math.min(7,TEMPLATES.length);window.ensureOrder=function(){var all=TEMPLATES.map(function(t){return t.id;});var valid=Array.isArray(state.order)&&state.order.length===count&&state.order.every(function(id){return all.indexOf(id)>=0;});if(!valid){var seed='coreup-v30|'+Date.now()+'|'+Math.random()+'|'+location.pathname;var r=seedRand(seed);state.order=shuffle(all.slice(),r).slice(0,count);state.variants=state.variants||{};state.order.forEach(function(id){state.variants[id]=Math.floor(r()*997)+1;});if(state.currentIndex>=state.order.length)state.currentIndex=0;try{saveState();}catch(_e){}}return state.order;};window.buildBank=function(){var order=window.ensureOrder();return order.map(function(id){var t=TEMPLATES.find(function(x){return x.id===id;});var v=getVariant(t.id);var g=t.gen(v);return{id:t.id,title:t.title,icon:t.icon,branches:g.branches};});};try{buildBank=window.buildBank;ensureOrder=window.ensureOrder;BANK=buildBank();}catch(_e){}}
+  function boot(){installRandomBank();schedule(document.body,50);setTimeout(function(){installRandomBank();schedule(document.body,0);try{renderAll();}catch(_e){}},160);setTimeout(function(){schedule(document.body,0);},700);try{new MutationObserver(function(muts){for(var i=0;i<muts.length;i++){if(muts[i].addedNodes&&muts[i].addedNodes.length){schedule(muts[i].target,45);return;}}}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});}catch(_e){}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
-</script></body>
+</script>
+</body>
 </html>
-
-
-
-
-
-
-
