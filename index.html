@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>جامعة الملك سعود — السنة الأولى المشتركة — STAT 102 | 6.1 المتغيّرات العشوائية</title>
+  <title>جامعة الملك سعود — السنة الأولى المشتركة — STAT 102 | 6.3 المتغيّرات العشوائية المستمرة وتوزيعاتها الاحتمالية</title>
   <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
   <link rel="stylesheet" href="../assets/vendor/fonts/local-fonts.css">
   <script src="../assets/vendor/katex/katex.min.js"></script>
@@ -2267,7 +2267,7 @@ mjx-container[display="true"]{display:block!important;text-align:center!importan
           <div class="u">جامعة الملك سعود</div>
           <div class="u en">King Saud University</div>
           <div class="d">السنة الأولى المشتركة <span class="sep">|</span> First-Year Common Program</div>
-          <div class="s">6.1 المتغيّرات العشوائية <span class="sep">|</span> Random Variables</div>
+          <div class="s">6.3 المتغيّرات العشوائية المستمرة وتوزيعاتها الاحتمالية <span class="sep">|</span> Continuous Random Variables and their Probability Distributions</div>
         </div>
       </div>
       <div class="logoWrap" title="شعار الجامعة">
@@ -2354,9 +2354,9 @@ function seededRand(seedStr){
 }
 function randInt(r, lo, hi){ return Math.floor(r()*(hi-lo+1))+lo; }
 
-const STATE_KEY = "stat102_6_1_state_v1";
+const STATE_KEY = "stat102_6_3_state_v1";
 const TIMER_MINUTES = 60;
-const TIMER_KEY = "stat102_6_1_timerEnd_v1";
+const TIMER_KEY = "stat102_6_3_timerEnd_v1";
 let state = loadState() || { currentIndex: 0, answers: {}, grading: {}, variants: {}, order: null, attempts: {}, saveAttempts: {}, locks: {}, outcomes: {}, timerEnded: false, dirty: {}, sidebarFilter: "all", fontSize: 0 };
 state.attempts = state.attempts || {};
 state.saveAttempts = state.saveAttempts || {};
@@ -2944,79 +2944,83 @@ function normalSvg(mu=0, sd=1){
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="230" aria-label="Normal curve"><line x1="${pad}" y1="${base}" x2="${W-pad}" y2="${base}" stroke="rgba(15,23,42,.30)"/><path d="${path}" fill="none" stroke="rgba(3,105,161,.85)" stroke-width="4"/><line x1="${W/2}" y1="${pad}" x2="${W/2}" y2="${base}" stroke="rgba(200,151,42,.75)" stroke-dasharray="6 6"/><text x="${W/2}" y="${base+24}" text-anchor="middle" font-size="14" font-weight="900" direction="ltr">μ=${mu}</text></svg>`;
 }
 
-function q61CoinValuesGen(v){
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة رمي قطعة نقد مرتين، ليكن \\(X\\) عدد مرات ظهور الصورة \\(H\\).</div><div style="margin-top:8px">فضاء النتائج: \\(\\Omega=\\{HH,HT,TH,TT\\}\\)</div></div>`;
-  return {branches:[{level:"سهل", explain:["حوّل كل ناتج في فضاء العينة إلى قيمة عددية تمثل عدد مرات ظهور الصورة.","القيم الممكنة فقط هي القيم التي تظهر فعلاً عند تطبيق الدالة."], formula:["\\(X(HH)=2\\), \\(X(HT)=1\\), \\(X(TH)=1\\), \\(X(TT)=0\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم المتغيّر العشوائي \\(X\\)", options:shuffleCopy(["{0، 1، 2}","{1، 2}","{0، 1، 2، 3}","{HH، HT، TH، TT}"], seededRand("opts61a|"+v))},{key:"p1", type:"number", label:"\\(P(X=1)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{0، 1، 2}", p1:0.5}, method:["قيم \\(X\\): عند \\(HH\\) تساوي 2، وعند \\(HT,TH\\) تساوي 1، وعند \\(TT\\) تساوي 0.","إذن \\(X=\\{0,1,2\\}\\).","\\(P(X=1)=P(HT,TH)=\\frac{2}{4}=0.50\\)."]}]};
-}
-function q61MaxCardsGen(v){
-  const nums=[2,4,6];
-  const outcomes=[]; nums.forEach(a=>nums.forEach(b=>outcomes.push([a,b])));
-  const vals=outcomes.map(o=>Math.max(o[0],o[1]));
-  const pge4=vals.filter(x=>x>=4).length/outcomes.length;
-  const pbetween=vals.filter(x=>x>=2 && x<5.5).length/outcomes.length;
-  const rows=outcomes.map((o,i)=>[`(${o[0]}, ${o[1]})`, vals[i]]);
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة سحب بطاقتين مع الإرجاع من صندوق يحوي البطاقات \\(2,4,6\\)، ولتكن \\(X\\) أكبر قيمة بين الرقمين الظاهرين.</div>${tableHtml(["الناتج","قيمة X"], rows)}</div>`;
-  return {branches:[{level:"متوسط", explain:["مع الإرجاع تكون جميع الأزواج التسعة متساوية الاحتمال.","اكتب قيمة \\(X\\) لكل زوج ثم عدّ النتائج الموافقة للحدث المطلوب."], formula:["\\(P(A)=\\frac{\\text{عدد النتائج الموافقة}}{\\text{عدد النتائج الكلية}}\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(X\\)", options:shuffleCopy(["{2، 4، 6}","{4، 6}","{2، 3، 4، 5، 6}","{2، 6}"], seededRand("opts61b|"+v))},{key:"pge4", type:"number", label:"\\(P(X\\ge 4)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"pbetween", type:"number", label:"\\(P(2\\le X<5.5)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{2، 4، 6}", pge4:round2(pge4), pbetween:round2(pbetween)}, method:[`عدد النتائج الكلية \\(=9\\).`, `القيم الممكنة هي \\(2,4,6\\).`, `\\(P(X\\ge4)=\\frac{8}{9}=${round2(pge4)}\\).`, `\\(P(2\\le X<5.5)=P(X=2 \\text{ أو } X=4)=\\frac{4}{9}=${round2(pbetween)}\\).`]}]};
-}
-function q61CdfDevicesGen(v){
-  const xs=[0,1,2], ps=[.25,.50,.25], Fs=[.25,.75,1];
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة فحص جهازين كهربائيين، ليكن \\(X\\) عدد الأجهزة السليمة. افترض أن حالات الجهازين متساوية الاحتمال.</div>${cdfStepSvg(xs,Fs)}</div>`;
-  return {branches:[{level:"متوسط", explain:["دالة التوزيع التراكمي تعطي \\(F_X(x)=P(X\\le x)\\).", "عندما تكون القيمة بين قيمتين ممكنتين للمتغير، تبقى الدالة ثابتة."], formula:["\\(F_X(x)=P(X\\le x)\\)","\\(P(a<X\\le b)=F_X(b)-F_X(a)\\)."], promptHtml, parts:[{key:"f05", type:"number", label:"\\(F_X(0.5)\\)", step:"0.01"},{key:"f15", type:"number", label:"\\(F_X(1.5)\\)", step:"0.01"},{key:"interval", type:"number", label:"\\(P(0.5<X\\le2.5)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{f05:.25, f15:.75, interval:.75}, method:["القيم الممكنة: \\(0,1,2\\) واحتمالاتها: \\(0.25,0.50,0.25\\).","\\(F_X(0.5)=P(X\\le0.5)=P(X=0)=0.25\\).","\\(F_X(1.5)=P(X\\le1.5)=P(X=0)+P(X=1)=0.75\\).","\\(P(0.5<X\\le2.5)=F_X(2.5)-F_X(0.5)=1-0.25=0.75\\)."]}]};
-}
-function q61CdfStepGen(v){
-  const xs=[0,1,2,3], Fs=[.2,.5,.8,1];
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">لتكن دالة التوزيع التراكمي للمتغيّر \\(X\\) معطاة كما يلي:</div><div class="mathBlock" style="margin-top:10px">\\[F_X(x)=\\begin{cases}0,&x<0\\\\0.2,&0\\le x<1\\\\0.5,&1\\le x<2\\\\0.8,&2\\le x<3\\\\1,&x\\ge3\\end{cases}\\]</div>${cdfStepSvg(xs,Fs)}</div>`;
-  return {branches:[{level:"متوسط", explain:["اقرأ القفزات من الدالة؛ كل قفزة تمثل احتمال القيمة عند تلك النقطة.","لا نستخدم \\(\\le\\) و \\(<\\) عشوائياً؛ صيغة \\(a<X\\le b\\) تقابل \\(F(b)-F(a)\\)."], formula:["\\(P(a<X\\le b)=F_X(b)-F_X(a)\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(X\\)", options:shuffleCopy(["{0، 1، 2، 3}","{0.2، 0.5، 0.8، 1}","{1، 2، 3}","{0، 1، 2}"], seededRand("opts61d|"+v))},{key:"p", type:"number", label:"\\(P(1<X\\le3)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{0، 1، 2، 3}", p:.5}, method:["القيم تظهر عند نقاط القفز: \\(0,1,2,3\\).","\\(P(1<X\\le3)=F_X(3)-F_X(1)=1-0.5=0.50\\)."]}]};
-}
-function q61ConstantGen(v){
-  const k=choice(seededRand("const61|"+v), [4,5,6]);
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة رمي حجر نرد مرة واحدة، عُرِّفت الدالة: \\(X(\\omega)=\\omega+(${k}-\\omega)\\).</div></div>`;
-  return {branches:[{level:"سهل", explain:["بسّط الدالة أولاً قبل النظر إلى قيم \\(\\omega\\).", "إذا كانت قيمة المتغير ثابتة لجميع عناصر فضاء العينة فهو متغير وحيد النقطة."], formula:[`\\(X(\\omega)=\\omega+(${k}-\\omega)=${k}\\).`], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم الدالة \\(X\\)", options:shuffleCopy([`{${k}}`,"{1، 2، 3، 4، 5، 6}",`{0، ${k}}`,`{${k-1}، ${k}}`], seededRand("opts61e|"+v))},{key:"prob", type:"number", label:`\\(P(X=${k})\\)`, step:"0.01"}], answers:{values:`{${k}}`, prob:1}, method:[`\\(X(\\omega)=\\omega+(${k}-\\omega)=${k}\\) لجميع قيم \\(\\omega\\).`, `إذن \\(X\\) وحيد النقطة وقيمته ${k}.`, `لذلك \\(P(X=${k})=1\\).`]}]};
-}
 
-function q61DiceSumGen(v){
-  const xs=[2,3,4,5,6,7,8,9,10,11,12];
-  const counts=[1,2,3,4,5,6,5,4,3,2,1];
-  const ps=counts.map(c=>c/36);
-  const rows=xs.map((x,i)=>[x, counts[i], ps[i].toFixed(2)]);
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة رمي حجري نرد، ليكن \\(X\\) مجموع العددين الظاهرين.</div>${tableHtml(["x","عدد النتائج","P(X=x)"], rows)}</div>`;
-  return {branches:[{level:"متوسط", explain:["فضاء العينة في رمي حجري نرد يحتوي 36 نتيجة متساوية الاحتمال.","نحسب الاحتمال بعدّ الأزواج التي تعطي المجموع المطلوب."], formula:["\\(P(X=x)=\\frac{\\text{عدد الأزواج التي مجموعها }x}{36}\\)."], promptHtml, parts:[{key:"min", type:"number", label:"أصغر قيمة ممكنة للمتغيّر \\(X\\)"},{key:"max", type:"number", label:"أكبر قيمة ممكنة للمتغيّر \\(X\\)"},{key:"p7", type:"number", label:"\\(P(X=7)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"ple4", type:"number", label:"\\(P(X\\le4)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{min:2,max:12,p7:0.17,ple4:0.17}, method:["أصغر مجموع هو \\(1+1=2\\)، وأكبر مجموع هو \\(6+6=12\\).","عدد الأزواج التي تعطي المجموع 7 يساوي 6، إذن \\(P(X=7)=6/36=0.17\\).","\\(X\\le4\\) يعني المجاميع 2 أو 3 أو 4، وعددها \\(1+2+3=6\\)، إذن الاحتمال \\(6/36=0.17\\)."]}]};
+function q63ConceptGen(v){
+  const value = choice(seededRand("concept63|"+v), [12,15,20,150]);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">اختر الوصف الصحيح للمتغيّر العشوائي المستمر.</div><div style="margin-top:10px">مثال: طول طالب يتم اختياره عشوائيًا من شعبة دراسية.</div><div class="hint">ملاحظة: المتغيّر المستمر يأخذ قيمًا داخل فترات، واحتمال القيمة المفردة يساوي صفرًا.</div></div>`;
+  return {branches:[{level:"سهل", explain:["المتغيّر المستمر يأخذ قيمًا ضمن فترات، وليس مجموعة معدودة من القيم فقط.","في المتغيّر المستمر احتمال القيمة المفردة يساوي صفرًا."], formula:["\\(P(X=a)=0\\) لأي متغيّر عشوائي مستمر."], promptHtml, parts:[{key:"type", type:"mcq", label:"نوع المتغيّر", options:shuffleCopy(["مستمر","متقطع","وحيد النقطة","فوق هندسي"], seededRand("opts63a|"+v))},{key:"pexact", type:"number", label:`إذا كان \\(X\\) مستمرًا، فما قيمة \\(P(X=${value})\\)؟`, step:"0.01"}], answers:{type:"مستمر", pexact:0}, method:["الطول يُقاس على مدى مستمر من القيم.","للمتغيّر المستمر: \\(P(X=a)=0\\) لأي قيمة مفردة."]}]};
 }
-function q61RedBallsGen(v){
-  const p2=comb(4,2)/comb(7,2), p0=comb(3,2)/comb(7,2), pge1=1-p0;
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">صندوق يحوي 4 كرات حمراء و3 زرقاء. سُحبت كرتان على التوالي دون إرجاع. ليكن \\(X\\) عدد الكرات الحمراء المسحوبة.</div></div>`;
-  return {branches:[{level:"متوسط", explain:["المتغيّر \\(X\\) يعدّ عدد الكرات الحمراء في سحبتين؛ لذلك قيمه الممكنة 0 أو 1 أو 2.","عند السحب دون إرجاع نستخدم العدّ أو التوافيق لحساب الاحتمالات."], formula:["\\(P(X=x)=\\frac{\\binom{4}{x}\\binom{3}{2-x}}{\\binom{7}{2}}\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(X\\)", options:shuffleCopy(["{0، 1، 2}","{1، 2}","{0، 1، 2، 3}","{حمراء، زرقاء}"], seededRand("opts61red|"+v))},{key:"p2", type:"number", label:"\\(P(X=2)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"p0", type:"number", label:"\\(P(X=0)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"pge1", type:"number", label:"\\(P(X\\ge1)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{0، 1، 2}", p2:round2(p2), p0:round2(p0), pge1:round2(pge1)}, method:["القيم الممكنة لعدد الكرات الحمراء في سحبتين هي \\(0,1,2\\).",`\\(P(X=2)=\\frac{\\binom{4}{2}}{\\binom{7}{2}}=${round2(p2)}\\).`,`\\(P(X=0)=\\frac{\\binom{3}{2}}{\\binom{7}{2}}=${round2(p0)}\\).`,`\\(P(X\\ge1)=1-P(X=0)=${round2(pge1)}\\).`]}]};
+function q63PropertiesGen(v){
+  const r=seededRand("prop63|"+v); const sd=choice(r,[4,8,12]);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">خصائص منحنى التوزيع الطبيعي</div><ul style="margin:10px 0 0;padding-right:20px"><li>المساحة الكلية تحت المنحنى تساوي واحدًا.</li><li>المنحنى متماثل حول المتوسط \\(\\mu\\).</li><li>زيادة \\(\\sigma\\) تجعل المنحنى أكثر انتشارًا.</li></ul></div>`;
+  return {branches:[{level:"سهل", explain:["التوزيع الطبيعي مستمر ومتماثل حول المتوسط.","الانحراف المعياري يتحكم في مقدار الانتشار."], formula:["\\(X\\sim N(\\mu,\\sigma^2)\\)","\\(E(X)=\\mu\\), \\(V(X)=\\sigma^2\\)."], promptHtml, parts:[{key:"area", type:"number", label:"المساحة الكلية تحت منحنى الكثافة", step:"0.01"},{key:"shape", type:"mcq", label:`إذا زادت قيمة \\(\\sigma\\) إلى ${sd} فإن المنحنى يصبح`, options:shuffleCopy(["أكثر انتشارًا وأقل ارتفاعًا","أكثر تركزًا وأعلى","غير متماثل","مساحته أكبر من 1"], r)}], answers:{area:1, shape:"أكثر انتشارًا وأقل ارتفاعًا"}, method:["من خصائص دالة الكثافة أن المساحة الكلية تحت المنحنى تساوي 1.","زيادة الانحراف المعياري تعني انتشار القيم أكثر حول المتوسط."]}]};
 }
-function q61StudentsPassValuesGen(v){
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">عند اختيار ثلاثة طلاب عشوائيًا، ليكن \\(W\\) عدد الطلاب الناجحين بينهم.</div></div>`;
-  return {branches:[{level:"سهل", explain:["المتغيّر يَعُدّ عدد الناجحين ضمن ثلاثة طلاب.","أقل عدد ممكن هو صفر وأكبر عدد ممكن هو ثلاثة."], formula:["\\(W\\in\\{0,1,2,3\\}\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(W\\)", options:shuffleCopy(["{0، 1، 2، 3}","{1، 2، 3}","{0، 1، 2}","{نجاح، رسوب}"], seededRand("opts61stud|"+v))},{key:"kind", type:"mcq", label:"نوع المتغيّر", options:shuffleCopy(["متغيّر عشوائي متقطع","متغيّر عشوائي مستمر","ليس متغيرًا عشوائيًا","متغير وحيد النقطة"], seededRand("opts61stud2|"+v))}], answers:{values:"{0، 1، 2، 3}", kind:"متغيّر عشوائي متقطع"}, method:["قد يكون عدد الناجحين 0 أو 1 أو 2 أو 3.","لأن مجموعة القيم معدودة ومنفصلة، فهو متغيّر عشوائي متقطع."]}]};
+function q63ZLeftGen(v){
+  const r=seededRand("zleft63|"+v); const z=choice(r,[-1.28,-0.84,-0.52,0,0.67,1.04,1.28,1.64]); const p=normalCdf(z);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">ليكن \\(Z\\) متغيّرًا طبيعيًا معياريًا. باستخدام جدول التوزيع الطبيعي المعياري، احسب المساحة إلى اليسار.</div><div class="mathBlock">\\[P(Z\\le ${z})\\]</div>${normalSvg(0,1)}</div>`;
+  return {branches:[{level:"سهل", explain:["القيمة الجدولية في جدول الطبيعي المعياري تمثل المساحة إلى يسار قيمة \\(z\\)."], formula:["\\(\\Phi(z)=P(Z\\le z)\\)."], promptHtml, parts:[{key:"p", type:"number", label:"الاحتمال — قرّب إلى منزلتين", step:"0.01"}], answers:{p:round2(p)}, method:[`\\(P(Z\\le ${z})=\\Phi(${z})\\approx ${round2(p)}\\).`]}]};
 }
-function q61MinCardsGen(v){
-  const nums=[1,3,5];
-  const outcomes=[]; nums.forEach(a=>nums.forEach(b=>outcomes.push([a,b])));
-  const vals=outcomes.map(o=>Math.min(o[0],o[1]));
-  const p1=vals.filter(x=>x===1).length/9, pge3=vals.filter(x=>x>=3).length/9;
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة سحب بطاقتين مع الإرجاع من صندوق يحوي البطاقات \\(1,3,5\\)، ولتكن \\(X\\) أصغر قيمة بين الرقمين الظاهرين.</div></div>`;
-  return {branches:[{level:"متوسط", explain:["مع الإرجاع توجد تسعة أزواج مرتبة متساوية الاحتمال.","قيمة \\(X\\) هنا هي الأصغر من الرقمين في كل زوج."], formula:["\\(P(A)=\\frac{\\text{عدد النتائج الموافقة}}{9}\\)."], promptHtml, parts:[{key:"values", type:"mcq", label:"مجموعة قيم \\(X\\)", options:shuffleCopy(["{1، 3، 5}","{1، 5}","{3، 5}","{1، 2، 3، 4، 5}"], seededRand("opts61min|"+v))},{key:"p1", type:"number", label:"\\(P(X=1)\\) — قرّب إلى منزلتين", step:"0.01"},{key:"pge3", type:"number", label:"\\(P(X\\ge3)\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{values:"{1، 3، 5}", p1:round2(p1), pge3:round2(pge3)}, method:["القيم الممكنة للأصغر هي \\(1,3,5\\).",`عدد النتائج التي فيها \\(X=1\\) يساوي 5 من أصل 9، لذلك \\(P(X=1)=${round2(p1)}\\).`,`\\(X\\ge3\\) يحدث عند الأزواج من \\(3,5\\) فقط وعددها 4، لذلك الاحتمال ${round2(pge3)}.`]}]};
+function q63ZBetweenGen(v){
+  const r=seededRand("zbetween63|"+v); const pairs=[[-1,1],[-1.28,1.28],[-.52,1.04],[0,1.64],[-1.64,0.67]]; const [a,b]=choice(r,pairs); const p=normalCdf(b)-normalCdf(a);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">ليكن \\(Z\\) متغيّرًا طبيعيًا معياريًا. أوجد الاحتمال الآتي:</div><div class="mathBlock">\\[P(${a}<Z<${b})\\]</div><div class="hint">استخدم الفرق بين المساحتين التراكميتين من الجدول.</div></div>`;
+  return {branches:[{level:"متوسط", explain:["احتمال الوقوع بين قيمتين يساوي فرق المساحتين التراكميتين.","للمتغير المستمر لا يفرق استخدام \\(<\\) أو \\(\\le\\) عند الحدود المفردة."], formula:["\\(P(a<Z<b)=\\Phi(b)-\\Phi(a)\\)."], promptHtml, parts:[{key:"p", type:"number", label:"الاحتمال — قرّب إلى منزلتين", step:"0.01"}], answers:{p:round2(p)}, method:[`\\(P(${a}<Z<${b})=\\Phi(${b})-\\Phi(${a})\\).`, `\\(=${round2(normalCdf(b))}-${round2(normalCdf(a))}=${round2(p)}\\).`]}]};
 }
-function q61CdfFromTableGen(v){
-  const xs=[0,1,2,3], ps=[.10,.20,.30,.40], Fs=[.10,.30,.60,1];
-  const rows=xs.map((x,i)=>[x, ps[i].toFixed(2), Fs[i].toFixed(2)]);
-  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">يوضح الجدول توزيع متغيّر عشوائي متقطع \\(X\\) ودالة توزيعه التراكمي.</div>${tableHtml(["x","P(X=x)","F_X(x)"], rows)}${cdfStepSvg(xs,Fs)}</div>`;
-  return {branches:[{level:"متوسط", explain:["دالة التوزيع التراكمي تجمع الاحتمالات حتى القيمة المطلوبة.","احتمال قيمة مفردة يساوي مقدار القفزة عند تلك القيمة."], formula:["\\(F_X(x)=P(X\\le x)\\)","\\(P(a<X\\le b)=F_X(b)-F_X(a)\\)."], promptHtml, parts:[{key:"f2", type:"number", label:"\\(F_X(2)\\)", step:"0.01"},{key:"p2", type:"number", label:"\\(P(X=2)\\)", step:"0.01"},{key:"interval", type:"number", label:"\\(P(1<X\\le3)\\)", step:"0.01"}], answers:{f2:0.60,p2:0.30,interval:0.70}, method:["\\(F_X(2)=P(X\\le2)=0.10+0.20+0.30=0.60\\).","\\(P(X=2)=F_X(2)-F_X(1)=0.60-0.30=0.30\\).","\\(P(1<X\\le3)=F_X(3)-F_X(1)=1-0.30=0.70\\)."]}]};
+function q63InverseGen(v){
+  const r=seededRand("zinv63|"+v); const item=choice(r,[{p:.975,z:1.96,side:"يسار"},{p:.95,z:1.64,side:"يسار"},{p:.90,z:1.28,side:"يسار"},{p:.80,z:.84,side:"يسار"},{p:.025,z:-1.96,side:"يسار"},{p:.2296,z:.74,side:"يمين"}]);
+  const prompt = item.side==="يمين" ? `\\[P(Z>z)=${item.p}\\]` : `\\[P(Z\\le z)=${item.p}\\]`;
+  const leftArea = item.side==="يمين" ? round4(1-item.p) : item.p;
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">ليكن \\(Z\\) متغيّرًا طبيعيًا معياريًا. أوجد قيمة \\(z\\) بحيث:</div><div class="mathBlock">${prompt}</div></div>`;
+  return {branches:[{level:"متوسط", explain:["نبحث داخل جدول الطبيعي المعياري عن المساحة ثم نقرأ قيمة \\(z\\) المقابلة لها.","إذا كانت المساحة إلى اليمين نحولها أولًا إلى مساحة يسارية."], formula:["\\(\\Phi(z)=P(Z\\le z)\\)."], promptHtml, parts:[{key:"z", type:"number", label:"قيمة \\(z\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{z:item.z}, method:[item.side==="يمين" ? `نحوّل المساحة اليمنى إلى يسار: \\(\\Phi(z)=1-${item.p}=${leftArea}\\).` : `المساحة المعطاة يسار القيمة هي \\(${item.p}\\).`, `القيمة المقابلة تقريبًا هي \\(z=${item.z}\\).`]}]};
+}
+function q63StandardizeGen(v){
+  const r=seededRand("std63|"+v); const mu=choice(r,[100,120,140,160]); const sd=choice(r,[8,10,12,15]); const z=choice(r,[-1.5,-1,-.5,.5,1,1.5]); const x=mu+z*sd; const p=normalCdf(z);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">ليكن \\(X\\sim N(${mu}, ${sd}^2)\\). أوجد القيمة المعيارية والاحتمال:</div><div class="mathBlock">\\[P(X\\le ${x})\\]</div></div>`;
+  return {branches:[{level:"متوسط", explain:["لا نستخدم جدول الطبيعي المعياري مباشرة مع \\(X\\) قبل استعياره.","حوّل \\(X\\) إلى \\(Z\\) باستخدام المتوسط والانحراف المعياري."], formula:["\\(Z=\\frac{X-\\mu}{\\sigma}\\)","\\(P(X\\le x)=P\\left(Z\\le\\frac{x-\\mu}{\\sigma}\\right)\\)."], promptHtml, parts:[{key:"z", type:"number", label:"القيمة المعيارية \\(z\\) — قرّب إلى منزلتين", step:"0.01"},{key:"p", type:"number", label:"الاحتمال — قرّب إلى منزلتين", step:"0.01"}], answers:{z:round2(z), p:round2(p)}, method:[`\\(z=\\frac{${x}-${mu}}{${sd}}=${round2(z)}\\).`, `\\(P(X\\le ${x})=P(Z\\le ${round2(z)})=${round2(p)}\\).`]}]};
+}
+function q63NormalIntervalGen(v){
+  const r=seededRand("nint63|"+v); const mu=choice(r,[50,80,100,140]); const sd=choice(r,[5,10,12]); const za=choice(r,[-1.5,-1,-.5]); const zb=choice(r,[.5,1,1.5]); const a=mu+za*sd, b=mu+zb*sd; const p=normalCdf(zb)-normalCdf(za);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">إذا كان \\(X\\sim N(${mu}, ${sd}^2)\\)، أوجد:</div><div class="mathBlock">\\[P(${a}<X<${b})\\]</div><div class="hint">استعر الحدين ثم اطرح المساحتين.</div></div>`;
+  return {branches:[{level:"متوسط", explain:["نحوّل الحدين إلى قيمتين معياريتين ثم نطرح المساحتين التراكميتين."], formula:["\\(z_1=\\frac{a-\\mu}{\\sigma}\\), \\(z_2=\\frac{b-\\mu}{\\sigma}\\)","\\(P(a<X<b)=\\Phi(z_2)-\\Phi(z_1)\\)."], promptHtml, parts:[{key:"p", type:"number", label:"الاحتمال — قرّب إلى منزلتين", step:"0.01"}], answers:{p:round2(p)}, method:[`\\(z_1=\\frac{${a}-${mu}}{${sd}}=${round2(za)}\\)، و \\(z_2=\\frac{${b}-${mu}}{${sd}}=${round2(zb)}\\).`, `\\(P=${round2(normalCdf(zb))}-${round2(normalCdf(za))}=${round2(p)}\\).`]}]};
+}
+function q63SymmetricGen(v){
+  const r=seededRand("sym63|"+v); const mu=choice(r,[100,120,140]); const sd=choice(r,[8,10,12]); const item=choice(r,[{pct:"95%",z:1.96},{pct:"80%",z:1.28},{pct:"90%",z:1.64}]); const lo=mu-item.z*sd, hi=mu+item.z*sd;
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">إذا كان \\(X\\sim N(${mu}, ${sd}^2)\\)، أوجد القيمتين المتماثلتين حول المتوسط بحيث يقع بينهما ${item.pct} من القيم.</div>${normalSvg(mu,sd)}</div>`;
+  return {branches:[{level:"صعب", explain:["بسبب تماثل التوزيع الطبيعي حول المتوسط تكون القيمتان على بعد معياري متساوٍ يمينًا ويسارًا.","استخدم قيمة \\(z\\) المناسبة للمساحة المركزية ثم حوّلها إلى قيم أصلية."], formula:["\\(x_1=\\mu-z\\sigma\\), \\(x_2=\\mu+z\\sigma\\)."], promptHtml, parts:[{key:"lo", type:"number", label:"القيمة الصغرى — قرّب إلى منزلتين", step:"0.01"},{key:"hi", type:"number", label:"القيمة الكبرى — قرّب إلى منزلتين", step:"0.01"}], answers:{lo:round2(lo), hi:round2(hi)}, method:[`للمساحة المركزية ${item.pct} نستخدم تقريبًا \\(z=${item.z}\\).`, `\\(x_1=${mu}-${item.z}\\times${sd}=${round2(lo)}\\).`, `\\(x_2=${mu}+${item.z}\\times${sd}=${round2(hi)}\\).`]}]};
+}
+function q63RightTailGen(v){
+  const r=seededRand("right63|"+v); const mu=choice(r,[80,100,120]); const sd=choice(r,[8,10,15]); const z=choice(r,[.5,1,1.5]); const x=mu+z*sd; const p=1-normalCdf(z);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">إذا كان \\(X\\sim N(${mu}, ${sd}^2)\\)، أوجد:</div><div class="mathBlock">\\[P(X>${x})\\]</div></div>`;
+  return {branches:[{level:"متوسط", explain:["حوّل القيمة الأصلية إلى قيمة معيارية أولاً.","احتمال الطرف الأيمن يساوي \\(1-\\Phi(z)\\)."], formula:["\\(Z=\\frac{X-\\mu}{\\sigma}\\)","\\(P(X>x)=1-\\Phi(z)\\)."], promptHtml, parts:[{key:"z", type:"number", label:"قيمة \\(z\\) — قرّب إلى منزلتين", step:"0.01"},{key:"p", type:"number", label:"الاحتمال — قرّب إلى منزلتين", step:"0.01"}], answers:{z:round2(z), p:round2(p)}, method:[`\\(z=\\frac{${x}-${mu}}{${sd}}=${round2(z)}\\).`,`\\(P(X>${x})=P(Z>${round2(z)})=1-\\Phi(${round2(z)})=${round2(p)}\\).`]}]};
+}
+function q63FindXPercentileGen(v){
+  const r=seededRand("xperc63|"+v); const mu=choice(r,[50,70,100]); const sd=choice(r,[5,10,12]); const item=choice(r,[{p:.80,z:.84},{p:.90,z:1.28},{p:.95,z:1.64},{p:.975,z:1.96}]); const x=mu+item.z*sd;
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">إذا كان \\(X\\sim N(${mu}, ${sd}^2)\\)، أوجد القيمة \\(x\\) التي تحقق:</div><div class="mathBlock">\\[P(X\\le x)=${item.p}\\]</div></div>`;
+  return {branches:[{level:"متوسط", explain:["نبحث عن قيمة \\(z\\) التي تقابل المساحة المعطاة.","بعد ذلك نعود للقيمة الأصلية باستخدام \\(x=\\mu+z\\sigma\\)."], formula:["\\(x=\\mu+z\\sigma\\)."], promptHtml, parts:[{key:"z", type:"number", label:"قيمة \\(z\\) المناسبة — قرّب إلى منزلتين", step:"0.01"},{key:"x", type:"number", label:"قيمة \\(x\\) — قرّب إلى منزلتين", step:"0.01"}], answers:{z:item.z, x:round2(x)}, method:[`من الجدول: \\(\\Phi(z)=${item.p}\\) يقابل تقريبًا \\(z=${item.z}\\).`,`\\(x=${mu}+${item.z}\\times${sd}=${round2(x)}\\).`]}]};
+}
+function q63QualityControlGen(v){
+  const r=seededRand("qc63|"+v); const mu=choice(r,[500,100,120]); const sd=choice(r,[5,10,15]); const limit=mu-sd; const p=1-normalCdf((limit-mu)/sd);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في مصنع، تتبع أوزان العبوات توزيعًا طبيعيًا:</div><div class="mathBlock">\\[X\\sim N(${mu},${sd}^2)\\]</div><div>تُعد العبوة مقبولة إذا كان وزنها أكبر من أو يساوي ${limit}. احسب نسبة العبوات المقبولة.</div></div>`;
+  return {branches:[{level:"متوسط", explain:["هذا سؤال طرف أيمن في التوزيع الطبيعي.","نحوّل حد القبول إلى قيمة معيارية ثم نحسب احتمال \\(X\\ge a\\)."], formula:["\\(P(X\\ge a)=1-\\Phi\\left(\\frac{a-\\mu}{\\sigma}\\right)\\)."], promptHtml, parts:[{key:"p", type:"number", label:"نسبة القبول — قرّب إلى منزلتين", step:"0.01"}], answers:{p:round2(p)}, method:[`\\(z=\\frac{${limit}-${mu}}{${sd}}=-1\\).`, `\\(P(X\\ge ${limit})=P(Z\\ge -1)=${round2(p)}\\).`]}]};
+}
+function q63PopulationCountGen(v){
+  const r=seededRand("pop63|"+v); const N=choice(r,[200,500,1000]); const mu=choice(r,[120,130]); const sd=choice(r,[10,15]); const a=mu-sd, b=mu+sd; const p=normalCdf(1)-normalCdf(-1); const count=Math.round(N*p);
+  const promptHtml = `<div class="card" style="padding:14px"><div style="font-weight:900">في دراسة على ${N} شخص، يتبع القياس توزيعًا طبيعيًا:</div><div class="mathBlock">\\[X\\sim N(${mu},${sd}^2)\\]</div><div>كم عدد الأشخاص تقريبًا الذين تقع قيمهم بين ${a} و ${b}؟</div></div>`;
+  return {branches:[{level:"متوسط", explain:["نحسب الاحتمال للفترة أولًا ثم نضرب في عدد الأفراد.","الفترة \\(\\mu-\\sigma\\) إلى \\(\\mu+\\sigma\\) تقابل \\(-1<Z<1\\)."], formula:["\\(\\text{العدد التقريبي}=n\\times P(a<X<b)\\)."], promptHtml, parts:[{key:"p", type:"number", label:"الاحتمال — قرّب إلى منزلتين", step:"0.01"},{key:"count", type:"number", label:"العدد التقريبي", step:"1"}], answers:{p:round2(p), count:count}, method:[`الفترة ${a} إلى ${b} تقابل \\(-1<Z<1\\).`, `الاحتمال تقريبًا ${round2(p)}.`, `العدد التقريبي \\(${N}\\times${round2(p)}\\approx ${count}\\).`]}]};
 }
 
 const TEMPLATES = [
-  {id:"q61_coin_values", title:"المتغيّر العشوائي من تجربة رمي قطعة نقد", icon:"X", gen:q61CoinValuesGen},
-  {id:"q61_max_cards", title:"قيم المتغيّر واحتمالاته", icon:"Ω", gen:q61MaxCardsGen},
-  {id:"q61_cdf_devices", title:"دالة التوزيع التراكمي", icon:"F", gen:q61CdfDevicesGen},
-  {id:"q61_cdf_steps", title:"استخدام دالة التوزيع التراكمي", icon:"↗", gen:q61CdfStepGen},
-  {id:"q61_constant", title:"المتغيّر وحيد النقطة", icon:"1", gen:q61ConstantGen},
-  {id:"q61_dice_sum", title:"مجموع العددين عند رمي حجري نرد", icon:"Σ", gen:q61DiceSumGen},
-  {id:"q61_red_balls", title:"عدد الكرات الحمراء دون إرجاع", icon:"R", gen:q61RedBallsGen},
-  {id:"q61_students_pass", title:"عدد الطلاب الناجحين", icon:"W", gen:q61StudentsPassValuesGen},
-  {id:"q61_min_cards", title:"أصغر قيمة عند السحب مع الإرجاع", icon:"m", gen:q61MinCardsGen},
-  {id:"q61_cdf_table", title:"قراءة الاحتمالات من دالة التوزيع", icon:"F", gen:q61CdfFromTableGen}
+  {id:"q63_concept", title:"المتغيّر العشوائي المستمر", icon:"∞", gen:q63ConceptGen},
+  {id:"q63_properties", title:"خصائص التوزيع الطبيعي", icon:"N", gen:q63PropertiesGen},
+  {id:"q63_z_left", title:"التوزيع الطبيعي المعياري", icon:"Φ", gen:q63ZLeftGen},
+  {id:"q63_z_between", title:"احتمال بين قيمتين معياريتين", icon:"Z", gen:q63ZBetweenGen},
+  {id:"q63_inverse", title:"إيجاد قيمة z من المساحة", icon:"z", gen:q63InverseGen},
+  {id:"q63_standardize", title:"استعيار المتغيّر الطبيعي", icon:"σ", gen:q63StandardizeGen},
+  {id:"q63_interval", title:"احتمال لفترة في توزيع طبيعي", icon:"N", gen:q63NormalIntervalGen},
+  {id:"q63_symmetric", title:"القيم المتماثلة حول المتوسط", icon:"±", gen:q63SymmetricGen},
+  {id:"q63_right_tail", title:"احتمال الطرف الأيمن في الطبيعي", icon:">", gen:q63RightTailGen},
+  {id:"q63_find_x_percentile", title:"إيجاد x من احتمال تراكمي", icon:"x", gen:q63FindXPercentileGen},
+  {id:"q63_quality_control", title:"تطبيق ضبط الجودة", icon:"✓", gen:q63QualityControlGen},
+  {id:"q63_population_count", title:"عدد تقريبي من نسبة طبيعية", icon:"#", gen:q63PopulationCountGen}
 ];
 
 
@@ -3710,15 +3714,15 @@ document.addEventListener("fullscreenchange", ()=>{ const btn = document.getElem
 function renderAll(){ renderMain(); renderSidebar(); setProgress(); }
 window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); renderAll(); if(window.__examRunning) startTimer(); else showIntroModal(); });/* Codex Adaptive Mastery Start */
 (function(){
-  const ADAPTIVE_STYLE_ID = "codex-adaptive-mastery-6_1";
-  const MASTERY_VERSION = "chapter6_mastery_6_1_v2_more_questions";
-  const CORE_ORDER = ["q61_coin_values", "q61_max_cards", "q61_cdf_devices", "q61_cdf_steps", "q61_constant", "q61_dice_sum", "q61_red_balls", "q61_students_pass", "q61_min_cards", "q61_cdf_table"];
-  const ALL_ORDER = ["q61_coin_values", "q61_max_cards", "q61_cdf_devices", "q61_cdf_steps", "q61_constant", "q61_dice_sum", "q61_red_balls", "q61_students_pass", "q61_min_cards", "q61_cdf_table"];
-  const QUESTION_PROFILES = {"q61_coin_values": {"skills": ["q61", "chapter6"], "remediation": ["q61_cdf_table"], "advancement": ["q61_max_cards"]}, "q61_max_cards": {"skills": ["q61", "chapter6"], "remediation": ["q61_coin_values"], "advancement": ["q61_cdf_devices"]}, "q61_cdf_devices": {"skills": ["q61", "chapter6"], "remediation": ["q61_max_cards"], "advancement": ["q61_cdf_steps"]}, "q61_cdf_steps": {"skills": ["q61", "chapter6"], "remediation": ["q61_cdf_devices"], "advancement": ["q61_constant"]}, "q61_constant": {"skills": ["q61", "chapter6"], "remediation": ["q61_cdf_steps"], "advancement": ["q61_dice_sum"]}, "q61_dice_sum": {"skills": ["q61", "chapter6"], "remediation": ["q61_constant"], "advancement": ["q61_red_balls"]}, "q61_red_balls": {"skills": ["q61", "chapter6"], "remediation": ["q61_dice_sum"], "advancement": ["q61_students_pass"]}, "q61_students_pass": {"skills": ["q61", "chapter6"], "remediation": ["q61_red_balls"], "advancement": ["q61_min_cards"]}, "q61_min_cards": {"skills": ["q61", "chapter6"], "remediation": ["q61_students_pass"], "advancement": ["q61_cdf_table"]}, "q61_cdf_table": {"skills": ["q61", "chapter6"], "remediation": ["q61_min_cards"], "advancement": ["q61_coin_values"]}};
+  const ADAPTIVE_STYLE_ID = "codex-adaptive-mastery-6_3";
+  const MASTERY_VERSION = "chapter6_mastery_6_3_v2_more_questions";
+  const CORE_ORDER = ["q63_concept", "q63_properties", "q63_z_left", "q63_z_between", "q63_inverse", "q63_standardize", "q63_interval", "q63_symmetric", "q63_right_tail", "q63_find_x_percentile", "q63_quality_control", "q63_population_count"];
+  const ALL_ORDER = ["q63_concept", "q63_properties", "q63_z_left", "q63_z_between", "q63_inverse", "q63_standardize", "q63_interval", "q63_symmetric", "q63_right_tail", "q63_find_x_percentile", "q63_quality_control", "q63_population_count"];
+  const QUESTION_PROFILES = {"q63_concept": {"skills": ["q63", "chapter6"], "remediation": ["q63_concept"], "advancement": ["q63_properties"]}, "q63_properties": {"skills": ["q63", "chapter6"], "remediation": ["q63_concept"], "advancement": ["q63_z_left"]}, "q63_z_left": {"skills": ["q63", "chapter6"], "remediation": ["q63_properties"], "advancement": ["q63_z_between"]}, "q63_z_between": {"skills": ["q63", "chapter6"], "remediation": ["q63_z_left"], "advancement": ["q63_inverse"]}, "q63_inverse": {"skills": ["q63", "chapter6"], "remediation": ["q63_z_between"], "advancement": ["q63_standardize"]}, "q63_standardize": {"skills": ["q63", "chapter6"], "remediation": ["q63_inverse"], "advancement": ["q63_interval"]}, "q63_interval": {"skills": ["q63", "chapter6"], "remediation": ["q63_standardize"], "advancement": ["q63_symmetric"]}, "q63_symmetric": {"skills": ["q63", "chapter6"], "remediation": ["q63_interval"], "advancement": ["q63_right_tail"]}, "q63_right_tail": {"skills": ["q63", "chapter6"], "remediation": ["q63_symmetric"], "advancement": ["q63_find_x_percentile"]}, "q63_find_x_percentile": {"skills": ["q63", "chapter6"], "remediation": ["q63_right_tail"], "advancement": ["q63_quality_control"]}, "q63_quality_control": {"skills": ["q63", "chapter6"], "remediation": ["q63_find_x_percentile"], "advancement": ["q63_population_count"]}, "q63_population_count": {"skills": ["q63", "chapter6"], "remediation": ["q63_quality_control"], "advancement": ["q63_concept"]}};
   const SUPPORT_LIMIT = 0;
   const READINESS_TO_ADVANCE = 0.74;
   const NEED_SUPPORT_BELOW = 0.62;
-  const AI_ADAPTIVE_KEY = "stat102_6_1_ai_adaptive_v1";
+  const AI_ADAPTIVE_KEY = "stat102_6_3_ai_adaptive_v1";
 
   const originalBuildBank = buildBank;
   const originalRenderSidebar = renderSidebar;
@@ -4307,7 +4311,7 @@ window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); re
 
 /* Codex AI Models Logic Start */
 (function(){
-  const AI_MODELS_KEY = "stat102_6_1_ai_models_v1";
+  const AI_MODELS_KEY = "stat102_6_3_ai_models_v1";
   try{ window.AI_MODELS_KEY = AI_MODELS_KEY; }catch(_e){}
 
   function aiStoreGet(key){
@@ -5129,9 +5133,9 @@ window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); re
   if(typeof TEMPLATES === "undefined" || !Array.isArray(TEMPLATES) || !TEMPLATES.length || typeof state === "undefined") return;
 
   const ADAPTIVE_SOURCE = (typeof ADAPTIVE_TEMPLATES_12 !== "undefined" && Array.isArray(ADAPTIVE_TEMPLATES_12) && ADAPTIVE_TEMPLATES_12.length) ? ADAPTIVE_TEMPLATES_12 : TEMPLATES;
-  const MASTERY_VERSION_UNIFIED = "stat102_6_1_unified_v2_more_questions";
-  const MASTERY_CORE_UNIFIED = ["q61_coin_values", "q61_max_cards", "q61_cdf_devices", "q61_cdf_steps", "q61_constant", "q61_dice_sum", "q61_red_balls", "q61_students_pass", "q61_min_cards", "q61_cdf_table"];
-  const MASTERY_PROFILES_UNIFIED = {"q61_coin_values": {"supports": ["q61_max_cards", "q61_cdf_devices", "q61_cdf_steps", "q61_constant"]}, "q61_max_cards": {"supports": ["q61_cdf_devices", "q61_cdf_steps", "q61_constant", "q61_dice_sum"]}, "q61_cdf_devices": {"supports": ["q61_cdf_steps", "q61_constant", "q61_dice_sum", "q61_red_balls"]}, "q61_cdf_steps": {"supports": ["q61_constant", "q61_dice_sum", "q61_red_balls", "q61_students_pass"]}, "q61_constant": {"supports": ["q61_dice_sum", "q61_red_balls", "q61_students_pass", "q61_min_cards"]}, "q61_dice_sum": {"supports": ["q61_red_balls", "q61_students_pass", "q61_min_cards", "q61_cdf_table"]}, "q61_red_balls": {"supports": ["q61_students_pass", "q61_min_cards", "q61_cdf_table", "q61_coin_values"]}, "q61_students_pass": {"supports": ["q61_min_cards", "q61_cdf_table", "q61_coin_values", "q61_max_cards"]}, "q61_min_cards": {"supports": ["q61_cdf_table", "q61_coin_values", "q61_max_cards", "q61_cdf_devices"]}, "q61_cdf_table": {"supports": ["q61_coin_values", "q61_max_cards", "q61_cdf_devices", "q61_cdf_steps"]}};
+  const MASTERY_VERSION_UNIFIED = "stat102_6_3_unified_v2_more_questions";
+  const MASTERY_CORE_UNIFIED = ["q63_concept", "q63_z_left", "q63_z_between", "q63_inverse", "q63_standardize", "q63_interval", "q63_symmetric", "q63_right_tail", "q63_find_x_percentile", "q63_empirical_rule"];
+  const MASTERY_PROFILES_UNIFIED = {"q63_concept": {"supports": ["q63_z_left", "q63_z_between", "q63_inverse", "q63_standardize"]}, "q63_z_left": {"supports": ["q63_z_between", "q63_inverse", "q63_standardize", "q63_interval"]}, "q63_z_between": {"supports": ["q63_inverse", "q63_standardize", "q63_interval", "q63_symmetric"]}, "q63_inverse": {"supports": ["q63_standardize", "q63_interval", "q63_symmetric", "q63_right_tail"]}, "q63_standardize": {"supports": ["q63_interval", "q63_symmetric", "q63_right_tail", "q63_find_x_percentile"]}, "q63_interval": {"supports": ["q63_symmetric", "q63_right_tail", "q63_find_x_percentile", "q63_empirical_rule"]}, "q63_symmetric": {"supports": ["q63_right_tail", "q63_find_x_percentile", "q63_empirical_rule", "q63_concept"]}, "q63_right_tail": {"supports": ["q63_find_x_percentile", "q63_empirical_rule", "q63_concept", "q63_z_left"]}, "q63_find_x_percentile": {"supports": ["q63_empirical_rule", "q63_concept", "q63_z_left", "q63_z_between"]}, "q63_empirical_rule": {"supports": ["q63_concept", "q63_z_left", "q63_z_between", "q63_inverse"]}};
 
   function adaptiveSaveState(){
     try{ if(typeof saveState === "function") saveState(); }catch(e){}
@@ -6269,38 +6273,248 @@ window.addEventListener("load", ()=>{ window.__examRunning = isExamStarted(); re
 <!-- Core Up V27: stable MathJax renderer from assets; no KaTeX fallback and no HTML math conversion -->
 
 
-<!-- Core Up V30: clean local math renderer (single renderer, no escaped HTML) -->
-<style id="coreup-v30-internal-math-style">
-  .coreup-math{direction:ltr;unicode-bidi:isolate;display:inline-flex;align-items:center;max-width:100%;overflow-x:auto;vertical-align:middle;background:#f8fafc;border:1px solid #dbeafe;border-radius:8px;padding:2px 7px;margin:0 2px;font-family:"Times New Roman","Cambria Math",serif;font-size:.98em;font-weight:800;color:#0f172a;line-height:1.55;white-space:nowrap}
-  .coreup-math-block{display:flex;width:max-content;max-width:100%;margin:10px auto;padding:7px 12px;justify-content:center;text-align:center;white-space:nowrap}
-  .sai21-msg-content .coreup-math{font-size:11.5px;padding:1px 5px;line-height:1.45}
-  .sai21-msg-content .coreup-math-block{font-size:11.5px;margin:7px auto}
+
+<!-- Core Up V31: internal safe math + random 7 + reliable same-template swap -->
+<style id="coreup-v31-safe-math-style">
+  .cu-math-v31{direction:ltr;unicode-bidi:isolate;display:inline-flex;align-items:center;max-width:100%;overflow-x:auto;vertical-align:middle;background:#f8fafc;border:1px solid #dbeafe;border-radius:8px;padding:2px 7px;margin:0 2px;font-family:"Times New Roman","Cambria Math",serif;font-size:.98em;font-weight:800;color:#0f172a;line-height:1.55;white-space:nowrap}
+  .cu-math-v31.block{display:flex;width:max-content;max-width:100%;margin:10px auto;padding:7px 12px;justify-content:center;text-align:center;white-space:nowrap}
+  .sai21-msg-content .cu-math-v31{font-size:11.5px;padding:1px 5px;line-height:1.45}
+  .sai21-msg-content .cu-math-v31.block{font-size:11.5px;margin:7px auto}
 </style>
-<script id="coreup-v30-internal-math-and-random-bank">
+<script id="coreup-v31-safe-math-random-swap">
 (function(){
-  if(window.__COREUP_V30_INTERNAL__) return;
-  window.__COREUP_V30_INTERNAL__ = true;
-  function decodeEntities(s){s=String(s==null?'':s);for(var i=0;i<3;i++){var t=document.createElement('textarea');t.innerHTML=s;var v=t.value;if(v===s)break;s=v;}return s;}
-  function stripInjectedHtml(s){s=decodeEntities(s);s=s.replace(/<\/?(?:span|div|sup|sub|mjx-container|mjx-assistive-mml|svg|g|path|use|mrow|mi|mo|mn|msup|msub|mfrac|msqrt|math)[^>]*>/gi,'');s=s.replace(/class\s*=\s*['\"][^'\"]*['\"]/gi,'');s=s.replace(/style\s*=\s*['\"][^'\"]*['\"]/gi,'');s=s.replace(/&lt;[^&]*&gt;/gi,'');return s;}
-  function normalizeSlashes(s){return String(s||'').replace(/\\\\\(/g,'\\(').replace(/\\\\\)/g,'\\)').replace(/\\\\\[/g,'\\[').replace(/\\\\\]/g,'\\]').replace(/\\\\([A-Za-z]+)/g,'\\$1').replace(/\\\\([{}])/g,'\\$1');}
-  function readGroup(str,pos){if(str[pos]!=='{')return null;var depth=0;for(var i=pos;i<str.length;i++){var ch=str[i],prev=str[i-1];if(ch==='{'&&prev!=='\\')depth++;else if(ch==='}'&&prev!=='\\'){depth--;if(depth===0)return{value:str.slice(pos+1,i),end:i+1};}}return null;}
-  function replaceTwoArgs(str,cmd,fn){var out='',i=0,token='\\'+cmd;while(i<str.length){if(str.startsWith(token,i)){var p=i+token.length;while(str[p]===' ')p++;var a=readGroup(str,p);if(a){var q=a.end;while(str[q]===' ')q++;var b=readGroup(str,q);if(b){out+=fn(latexPlain(a.value),latexPlain(b.value));i=b.end;continue;}}}out+=str[i++];}return out;}
-  function replaceOneArg(str,cmd,fn){var out='',i=0,token='\\'+cmd;while(i<str.length){if(str.startsWith(token,i)){var p=i+token.length;while(str[p]===' ')p++;var a=readGroup(str,p);if(a){out+=fn(latexPlain(a.value));i=a.end;continue;}}out+=str[i++];}return out;}
-  function splitCasesRows(body){var rows=[],cur='',depth=0;for(var i=0;i<body.length;i++){var ch=body[i],prev=body[i-1];if(ch==='{'&&prev!=='\\')depth++;if(ch==='}'&&prev!=='\\')depth=Math.max(0,depth-1);if(ch==='\\'&&body[i+1]==='\\'&&depth===0){rows.push(cur);cur='';i++;continue;}cur+=ch;}if(cur.trim())rows.push(cur);return rows;}
-  function splitAmp(row){var parts=[],cur='',depth=0;for(var i=0;i<row.length;i++){var ch=row[i],prev=row[i-1];if(ch==='{'&&prev!=='\\')depth++;if(ch==='}'&&prev!=='\\')depth=Math.max(0,depth-1);if(ch==='&'&&depth===0){parts.push(cur);cur='';continue;}cur+=ch;}parts.push(cur);return parts;}
-  function renderCasesPlain(body){return '{ '+splitCasesRows(body).map(function(r){var p=splitAmp(r);var left=latexPlain(p[0]||'');var right=latexPlain(p.slice(1).join(' '));return right?(left+' إذا '+right):left;}).join(' ؛ ')+' }';}
-  function latexPlain(src){var t=normalizeSlashes(stripInjectedHtml(src));t=t.replace(/\\left|\\right|\\!|\\,/g,'');t=t.replace(/\\text\{([^{}]*)\}/g,function(_,a){return a;});t=t.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g,function(_,body){return renderCasesPlain(body);});t=replaceTwoArgs(t,'dfrac',function(a,b){return '('+a+')/('+b+')';});t=replaceTwoArgs(t,'frac',function(a,b){return '('+a+')/('+b+')';});t=replaceTwoArgs(t,'binom',function(a,b){return 'C('+a+','+b+')';});t=replaceOneArg(t,'sqrt',function(a){return '√('+a+')';});var map={'\\mathbb{R}':'ℝ','\\mathbb{N}':'ℕ','\\Omega':'Ω','\\omega':'ω','\\mu':'μ','\\sigma':'σ','\\lambda':'λ','\\alpha':'α','\\beta':'β','\\theta':'θ','\\Phi':'Φ','\\phi':'φ','\\pi':'π','\\leq':'≤','\\le':'≤','\\geq':'≥','\\ge':'≥','\\neq':'≠','\\ne':'≠','\\infty':'∞','\\pm':'±','\\times':'×','\\cdot':'·','\\div':'÷','\\sim':'∼','\\to':'→','\\rightarrow':'→','\\sum':'Σ','\\prod':'Π','\\in':'∈','\\notin':'∉','\\approx':'≈','\\cup':'∪','\\cap':'∩','\\emptyset':'∅','\\varnothing':'∅'};Object.keys(map).sort(function(a,b){return b.length-a.length;}).forEach(function(k){t=t.split(k).join(map[k]);});t=t.replace(/\\\{/g,'{').replace(/\\\}/g,'}');t=t.replace(/\^\{([^{}]+)\}/g,'^($1)').replace(/_\{([^{}]+)\}/g,'_($1)');t=t.replace(/\^([A-Za-z0-9+\-]+)/g,'^$1').replace(/_([A-Za-z0-9+\-]+)/g,'_$1');t=t.replace(/\\([A-Za-z]+)/g,'$1');t=t.replace(/\\\(/g,'').replace(/\\\)/g,'').replace(/\\\[/g,'').replace(/\\\]/g,'');t=t.replace(/[<>]/g,'');t=t.replace(/\s*([=+−\-×÷≤≥<>])\s*/g,' $1 ');t=t.replace(/\s+/g,' ').trim();return t;}
-  function makeMathEl(latex,isBlock){var el=document.createElement(isBlock?'div':'span');el.className='coreup-math'+(isBlock?' coreup-math-block':'');el.textContent=latexPlain(latex);return el;}
-  function needsMath(t){return /\\[\(\[]|<span|&lt;span|\\dfrac|\\frac|\\binom|\\Omega|\\omega|\\mu|\\sigma|\\lambda|\\Phi|\\begin\{cases\}|\\leq|\\geq|\\sum|\\sim/.test(t||'');}
-  function processTextNode(node){var raw=node.nodeValue||'';if(!needsMath(raw))return false;var text=normalizeSlashes(stripInjectedHtml(raw));var re=/\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]/g;var frag=document.createDocumentFragment(),last=0,m,changed=false;while((m=re.exec(text))){if(m.index>last)frag.appendChild(document.createTextNode(text.slice(last,m.index)));frag.appendChild(makeMathEl(m[1]!=null?m[1]:m[2],m[0].startsWith('\\[')));last=m.index+m[0].length;changed=true;}if(!changed&&needsMath(text)){frag.appendChild(makeMathEl(text,false));last=text.length;changed=true;}if(changed){if(last<text.length)frag.appendChild(document.createTextNode(text.slice(last)));node.parentNode.replaceChild(frag,node);}return changed;}
-  function renderMath(root){root=root||document.body;if(!root)return;var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){var p=n.parentElement;if(!p||(p.closest&&p.closest('script,style,textarea,option,input,select,.coreup-math,mjx-container,.katex,.katex-display')))return NodeFilter.FILTER_REJECT;return needsMath(n.nodeValue||'')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;}});var nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);nodes.forEach(processTextNode);}
-  var timer=null;function schedule(root,delay){clearTimeout(timer);timer=setTimeout(function(){renderMath(root||document.body);},delay==null?25:delay);}window.typesetMath=function(root){schedule(root||document.body,10);};window.CoreUpRenderMath=renderMath;try{typesetMath=window.typesetMath;}catch(_e){}
-  function seedRand(seed){var h=2166136261;seed=String(seed||'');for(var i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619);}return function(){h+=0x6D2B79F5;var t=h;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
-  function shuffle(arr,r){for(var i=arr.length-1;i>0;i--){var j=Math.floor(r()*(i+1));var x=arr[i];arr[i]=arr[j];arr[j]=x;}return arr;}
-  function installRandomBank(){if(typeof TEMPLATES==='undefined'||!Array.isArray(TEMPLATES)||typeof state==='undefined')return;var count=Math.min(7,TEMPLATES.length);window.ensureOrder=function(){var all=TEMPLATES.map(function(t){return t.id;});var valid=Array.isArray(state.order)&&state.order.length===count&&state.order.every(function(id){return all.indexOf(id)>=0;});if(!valid){var seed='coreup-v30|'+Date.now()+'|'+Math.random()+'|'+location.pathname;var r=seedRand(seed);state.order=shuffle(all.slice(),r).slice(0,count);state.variants=state.variants||{};state.order.forEach(function(id){state.variants[id]=Math.floor(r()*997)+1;});if(state.currentIndex>=state.order.length)state.currentIndex=0;try{saveState();}catch(_e){}}return state.order;};window.buildBank=function(){var order=window.ensureOrder();return order.map(function(id){var t=TEMPLATES.find(function(x){return x.id===id;});var v=getVariant(t.id);var g=t.gen(v);return{id:t.id,title:t.title,icon:t.icon,branches:g.branches};});};try{buildBank=window.buildBank;ensureOrder=window.ensureOrder;BANK=buildBank();}catch(_e){}}
-  function boot(){installRandomBank();schedule(document.body,50);setTimeout(function(){installRandomBank();schedule(document.body,0);try{renderAll();}catch(_e){}},160);setTimeout(function(){schedule(document.body,0);},700);try{new MutationObserver(function(muts){for(var i=0;i<muts.length;i++){if(muts[i].addedNodes&&muts[i].addedNodes.length){schedule(muts[i].target,45);return;}}}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});}catch(_e){}}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  if(window.__COREUP_V31_SAFE__) return;
+  window.__COREUP_V31_SAFE__ = true;
+  var ORDER_VERSION = 'coreup-v31-random7';
+
+  function dec(s){
+    s=String(s==null?'':s);
+    for(var i=0;i<5;i++){
+      var t=document.createElement('textarea'); t.innerHTML=s;
+      var v=t.value; if(v===s) break; s=v;
+    }
+    return s;
+  }
+  function textOnly(html){
+    html=dec(html);
+    var d=document.createElement('div');
+    d.innerHTML=html;
+    return (d.textContent||d.innerText||'').replace(/\s+/g,' ').trim();
+  }
+  function preClean(s){
+    s=dec(s);
+    // Preserve displayed fractions created by older patches before stripping tags.
+    var fracRe=/<span\b[^>]*class\s*=\s*["'][^"']*(?:stat-frac|coreup-frac)[^"']*["'][^>]*>\s*<span\b[^>]*>([\s\S]*?)<\/span>\s*<span\b[^>]*>([\s\S]*?)<\/span>\s*<\/span>/gi;
+    var guard=0;
+    while(fracRe.test(s) && guard++<10){
+      s=s.replace(fracRe,function(_,a,b){return '\\frac{'+textOnly(a)+'}{'+textOnly(b)+'}';});
+      fracRe.lastIndex=0;
+    }
+    s=s.replace(/<span\b[^>]*class\s*=\s*["'][^"']*(?:stat-comb|stat-binom|coreup-binom)[^"']*["'][^>]*>([\s\S]*?)<\/span>/gi,function(_,a){return textOnly(a);});
+    s=s.replace(/<\/?(?:span|div|sup|sub|mjx-container|mjx-assistive-mml|svg|g|path|use|mrow|mi|mo|mn|msup|msub|mfrac|msqrt|math)[^>]*>/gi,'');
+    s=s.replace(/&lt;[^&]*&gt;/gi,'');
+    return s;
+  }
+  function normSlash(s){
+    return String(s||'')
+      .replace(/\\\\\(/g,'\\(').replace(/\\\\\)/g,'\\)')
+      .replace(/\\\\\[/g,'\\[').replace(/\\\\\]/g,'\\]')
+      .replace(/\\\\([A-Za-z]+)/g,'\\$1').replace(/\\\\([{}])/g,'\\$1');
+  }
+  function readGroup(str,pos){
+    if(str[pos]!=='{') return null;
+    var depth=0;
+    for(var i=pos;i<str.length;i++){
+      var ch=str[i], prev=str[i-1];
+      if(ch==='{' && prev!=='\\') depth++;
+      else if(ch==='}' && prev!=='\\'){
+        depth--; if(depth===0) return {value:str.slice(pos+1,i), end:i+1};
+      }
+    }
+    return null;
+  }
+  function rep2(str,cmd,fn){
+    var out='',i=0,token='\\'+cmd;
+    while(i<str.length){
+      if(str.startsWith(token,i)){
+        var p=i+token.length; while(str[p]===' ') p++;
+        var a=readGroup(str,p);
+        if(a){var q=a.end; while(str[q]===' ') q++; var b=readGroup(str,q);
+          if(b){out+=fn(toPlain(a.value),toPlain(b.value)); i=b.end; continue;}
+        }
+      }
+      out+=str[i++];
+    }
+    return out;
+  }
+  function rep1(str,cmd,fn){
+    var out='',i=0,token='\\'+cmd;
+    while(i<str.length){
+      if(str.startsWith(token,i)){
+        var p=i+token.length; while(str[p]===' ') p++;
+        var a=readGroup(str,p);
+        if(a){out+=fn(toPlain(a.value)); i=a.end; continue;}
+      }
+      out+=str[i++];
+    }
+    return out;
+  }
+  function splitRows(body){
+    var rows=[],cur='',depth=0;
+    for(var i=0;i<body.length;i++){
+      var ch=body[i],prev=body[i-1];
+      if(ch==='{'&&prev!=='\\') depth++;
+      if(ch==='}'&&prev!=='\\') depth=Math.max(0,depth-1);
+      if(ch==='\\' && body[i+1]==='\\' && depth===0){rows.push(cur);cur='';i++;continue;}
+      cur+=ch;
+    }
+    if(cur.trim()) rows.push(cur);
+    return rows;
+  }
+  function splitAmp(row){
+    var parts=[],cur='',depth=0;
+    for(var i=0;i<row.length;i++){
+      var ch=row[i],prev=row[i-1];
+      if(ch==='{'&&prev!=='\\') depth++;
+      if(ch==='}'&&prev!=='\\') depth=Math.max(0,depth-1);
+      if(ch==='&'&&depth===0){parts.push(cur);cur='';continue;}
+      cur+=ch;
+    }
+    parts.push(cur);
+    return parts;
+  }
+  function toPlain(src){
+    var t=normSlash(preClean(src));
+    t=t.replace(/\\left|\\right|\\!|\\,/g,'');
+    t=t.replace(/\\text\{([^{}]*)\}/g,function(_,a){return a;});
+    t=t.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g,function(_,body){
+      return '{ '+splitRows(body).map(function(r){var p=splitAmp(r);var l=toPlain(p[0]||'');var rr=toPlain(p.slice(1).join(' '));return rr?(l+' إذا '+rr):l;}).join(' ؛ ')+' }';
+    });
+    t=rep2(t,'dfrac',function(a,b){return '('+a+')/('+b+')';});
+    t=rep2(t,'frac',function(a,b){return '('+a+')/('+b+')';});
+    t=rep2(t,'binom',function(a,b){return 'C('+a+','+b+')';});
+    t=rep1(t,'sqrt',function(a){return '√('+a+')';});
+    var map={'\\mathbb{R}':'ℝ','\\mathbb{N}':'ℕ','\\Omega':'Ω','\\omega':'ω','\\mu':'μ','\\sigma':'σ','\\lambda':'λ','\\alpha':'α','\\beta':'β','\\theta':'θ','\\Phi':'Φ','\\phi':'φ','\\pi':'π','\\leq':'≤','\\le':'≤','\\geq':'≥','\\ge':'≥','\\neq':'≠','\\ne':'≠','\\infty':'∞','\\pm':'±','\\times':'×','\\cdot':'·','\\div':'÷','\\sim':'∼','\\to':'→','\\rightarrow':'→','\\sum':'Σ','\\prod':'Π','\\in':'∈','\\notin':'∉','\\approx':'≈','\\cup':'∪','\\cap':'∩','\\emptyset':'∅','\\varnothing':'∅'};
+    Object.keys(map).sort(function(a,b){return b.length-a.length;}).forEach(function(k){t=t.split(k).join(map[k]);});
+    t=t.replace(/\\\{/g,'{').replace(/\\\}/g,'}');
+    t=t.replace(/\\\(/g,'').replace(/\\\)/g,'').replace(/\\\[/g,'').replace(/\\\]/g,'');
+    t=t.replace(/\^\{([^{}]+)\}/g,'^($1)').replace(/_\{([^{}]+)\}/g,'_($1)');
+    t=t.replace(/\^([A-Za-z0-9+\-.]+)/g,'^$1').replace(/_([A-Za-z0-9+\-.]+)/g,'_$1');
+    t=t.replace(/\\([A-Za-z]+)/g,'$1');
+    t=t.replace(/[<>]/g,'');
+    t=t.replace(/\s*([=+−\-×÷≤≥<>])\s*/g,' $1 ');
+    t=t.replace(/\s+/g,' ').trim();
+    return t;
+  }
+  function need(t){return /\\[\(\[]|<span|&lt;span|\\dfrac|\\frac|\\binom|\\Omega|\\omega|\\mu|\\sigma|\\lambda|\\Phi|\\begin\{cases\}|\\leq|\\geq|\\sum|\\sim/.test(t||'');}
+  function mathEl(s,block){var el=document.createElement(block?'div':'span');el.className='cu-math-v31'+(block?' block':'');el.textContent=toPlain(s);return el;}
+  function processText(node){
+    var raw=node.nodeValue||''; if(!need(raw)) return;
+    var txt=normSlash(preClean(raw)); var re=/\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]/g;
+    var frag=document.createDocumentFragment(), last=0, m, changed=false;
+    while((m=re.exec(txt))){
+      if(m.index>last) frag.appendChild(document.createTextNode(txt.slice(last,m.index)));
+      frag.appendChild(mathEl(m[1]!=null?m[1]:m[2], m[0].startsWith('\\[')));
+      last=m.index+m[0].length; changed=true;
+    }
+    if(changed){ if(last<txt.length) frag.appendChild(document.createTextNode(txt.slice(last))); node.parentNode.replaceChild(frag,node); }
+    else if(need(txt)){ node.parentNode.replaceChild(mathEl(txt,false), node); }
+  }
+  function cleanOld(root){
+    root=root||document.body;
+    try{root.querySelectorAll('.coreup-math,.math-fallback,.katex,.katex-display').forEach(function(el){
+      var t=el.textContent||''; if(need(t)||/<span|&lt;span/.test(t)){el.textContent=toPlain(t); el.className='cu-math-v31';}
+    });}catch(e){}
+  }
+  function safeTypeset(root){
+    root=root||document.body; if(!root) return;
+    cleanOld(root);
+    var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){
+      var p=n.parentElement;
+      if(!p || (p.closest && p.closest('script,style,textarea,option,input,select,.cu-math-v31,svg'))) return NodeFilter.FILTER_REJECT;
+      return need(n.nodeValue||'') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(processText);
+    cleanOld(root);
+  }
+  window.CoreUpSafeMathV31=safeTypeset;
+  window.typesetMath=function(root){setTimeout(function(){safeTypeset(root||document.body);},0);};
+  try{typesetMath=window.typesetMath;}catch(e){}
+
+  function seeded(seed){var h=2166136261;seed=String(seed||'');for(var i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619);}return function(){h+=0x6D2B79F5;var t=h;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
+  function shuf(a,r){for(var i=a.length-1;i>0;i--){var j=Math.floor(r()*(i+1));var x=a[i];a[i]=a[j];a[j]=x;}return a;}
+  function patchTemplate(id,gen){try{var t=TEMPLATES.find(function(x){return x.id===id;}); if(t) t.gen=gen;}catch(e){}}
+  function patchVariantTemplates(){
+    try{
+      if(typeof TEMPLATES==='undefined') return;
+      // 6.1 variants
+      patchTemplate('q61_cdf_devices', function(v){var n=2+(Number(v)%2), total=Math.pow(2,n), xs=[],ps=[],Fs=[],cum=0;for(var x=0;x<=n;x++){xs.push(x);var p=comb(n,x)/total;ps.push(p);cum+=p;Fs.push(cum);}var a=0.5,b=n-0.5;var promptHtml='<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة فحص '+n+' أجهزة كهربائية، ليكن \\(X\\) عدد الأجهزة السليمة، وافترض أن حالات الأجهزة متساوية الاحتمال.</div>'+cdfStepSvg(xs,Fs)+'</div>';return {branches:[{level:'متوسط',explain:['دالة التوزيع التراكمي تعطي \\(F_X(x)=P(X\\le x)\\).','القيمة بين نقطتين تأخذ قيمة الدالة عند آخر نقطة قبلها.'],formula:['\\(F_X(x)=P(X\\le x)\\)','\\(P(a<X\\le b)=F_X(b)-F_X(a)\\).'],promptHtml:promptHtml,parts:[{key:'fA',type:'number',label:'\\(F_X('+a+')\\)',step:'0.01'},{key:'fB',type:'number',label:'\\(F_X('+b+')\\)',step:'0.01'},{key:'interval',type:'number',label:'\\(P('+a+'<X\\le'+b+')\\) — قرّب إلى منزلتين',step:'0.01'}],answers:{fA:round2(Fs[0]),fB:round2(Fs[n-1]),interval:round2(Fs[n-1]-Fs[0])},method:['القيم الممكنة هي \\(0,1,\\ldots,'+n+')\\).','\\(F_X('+a+')=P(X\\le'+a+')=P(X=0)='+round2(Fs[0])+'\\).','\\(F_X('+b+')='+round2(Fs[n-1])+'\\).','إذن الاحتمال المطلوب = '+round2(Fs[n-1]-Fs[0])+'.']}]} });
+      patchTemplate('q61_dice_sum', function(v){var m=[4,5,6][Number(v)%3], total=m*m, xs=[],rows=[];for(var s=2;s<=2*m;s++){var c=(s<=m+1)?s-1:2*m+1-s;xs.push(s);rows.push([s,c,(c/total).toFixed(2)]);}var target=m+1, ptarget=m/total, ple4=6/total;var promptHtml='<div class="card" style="padding:14px"><div style="font-weight:900">في تجربة رمي حجرين مرقّمين من 1 إلى '+m+'، ليكن \\(X\\) مجموع العددين الظاهرين.</div>'+tableHtml(['x','عدد النتائج','P(X=x)'],rows)+'</div>';return {branches:[{level:'متوسط',explain:['نحسب عدد الأزواج التي تعطي المجموع المطلوب.','عدد النتائج الكلية يساوي \\('+m+'^2='+total+'\\).'],formula:['\\(P(X=x)=\\frac{\\text{عدد الأزواج التي مجموعها }x}{'+total+'}\\).'],promptHtml:promptHtml,parts:[{key:'min',type:'number',label:'أصغر قيمة ممكنة للمتغيّر \\(X\\)'},{key:'max',type:'number',label:'أكبر قيمة ممكنة للمتغيّر \\(X\\)'},{key:'pt',type:'number',label:'\\(P(X='+target+')\\) — قرّب إلى منزلتين',step:'0.01'},{key:'ple4',type:'number',label:'\\(P(X\\le4)\\) — قرّب إلى منزلتين',step:'0.01'}],answers:{min:2,max:2*m,pt:round2(ptarget),ple4:round2(ple4)},method:['أصغر مجموع هو 2 وأكبر مجموع هو '+(2*m)+'.','عدد الأزواج التي تعطي '+target+' يساوي '+m+'، إذن الاحتمال '+round2(ptarget)+'.','للمجاميع 2 أو 3 أو 4 عدد النتائج \\(1+2+3=6\\)، إذن الاحتمال '+round2(ple4)+'.']}]} });
+      patchTemplate('q61_cdf_table', function(v){var patterns=[[.10,.20,.30,.40],[.20,.25,.15,.40],[.15,.35,.20,.30]],ps=patterns[Number(v)%patterns.length],xs=[0,1,2,3],Fs=[],cum=0;for(var i=0;i<ps.length;i++){cum+=ps[i];Fs.push(round2(cum));}var rows=xs.map(function(x,i){return [x,ps[i].toFixed(2),Fs[i].toFixed(2)];});var promptHtml='<div class="card" style="padding:14px"><div style="font-weight:900">يوضح الجدول توزيع متغيّر عشوائي متقطع \\(X\\) ودالة توزيعه التراكمي.</div>'+tableHtml(['x','P(X=x)','F_X(x)'],rows)+cdfStepSvg(xs,Fs)+'</div>';return {branches:[{level:'متوسط',explain:['دالة التوزيع التراكمي تجمع الاحتمالات حتى القيمة المطلوبة.','احتمال قيمة مفردة يساوي مقدار القفزة عند تلك القيمة.'],formula:['\\(F_X(x)=P(X\\le x)\\)','\\(P(a<X\\le b)=F_X(b)-F_X(a)\\).'],promptHtml:promptHtml,parts:[{key:'f2',type:'number',label:'\\(F_X(2)\\)',step:'0.01'},{key:'p2',type:'number',label:'\\(P(X=2)\\)',step:'0.01'},{key:'interval',type:'number',label:'\\(P(1<X\\le3)\\)',step:'0.01'}],answers:{f2:round2(Fs[2]),p2:round2(ps[2]),interval:round2(Fs[3]-Fs[1])},method:['\\(F_X(2)='+Fs[2].toFixed(2)+'\\).','\\(P(X=2)='+ps[2].toFixed(2)+'\\).','\\(P(1<X\\le3)=F_X(3)-F_X(1)='+(Fs[3]).toFixed(2)+'-'+(Fs[1]).toFixed(2)+'='+round2(Fs[3]-Fs[1])+'\\).']}]} });
+      patchTemplate('q61_students_pass', function(v){var n=[2,3,4][Number(v)%3], values='{'+Array.from({length:n+1},function(_,i){return i;}).join('، ')+'}';var promptHtml='<div class="card" style="padding:14px"><div style="font-weight:900">عند اختيار '+n+' طلاب عشوائيًا، ليكن \\(W\\) عدد الطلاب الناجحين بينهم.</div></div>';return {branches:[{level:'سهل',explain:['المتغيّر يَعُدّ عدد الناجحين ضمن '+n+' طلاب.','أقل عدد ممكن هو صفر وأكبر عدد ممكن هو '+n+'.'],formula:['\\(W\\in '+values+'\\).'],promptHtml:promptHtml,parts:[{key:'values',type:'mcq',label:'مجموعة قيم \\(W\\)',options:shuffleCopy([values,'{1، 2، 3}','{0، 1}','{نجاح، رسوب}'], seededRand('opts61studV31|'+v))},{key:'kind',type:'mcq',label:'نوع المتغيّر',options:shuffleCopy(['متغيّر عشوائي متقطع','متغيّر عشوائي مستمر','ليس متغيرًا عشوائيًا','متغير وحيد النقطة'], seededRand('opts61stud2V31|'+v))}],answers:{values:values,kind:'متغيّر عشوائي متقطع'},method:['عدد الناجحين قد يكون أي عدد من 0 إلى '+n+'.','لأن القيم معدودة ومنفصلة، فهو متغيّر عشوائي متقطع.']}]} });
+      // 6.2 variants
+      patchTemplate('q62_expectation', function(v){var patterns=[[[0,1,2,3],[.10,.30,.40,.20]],[[0,1,2,3],[.20,.25,.35,.20]],[[1,2,3,4],[.25,.25,.30,.20]]],P=patterns[Number(v)%patterns.length],xs=P[0],ps=P[1],ex=sum(xs.map(function(x,i){return x*ps[i];})),ex2=sum(xs.map(function(x,i){return x*x*ps[i];})),variance=ex2-ex*ex,sd=Math.sqrt(variance),rows=xs.map(function(x,i){return [x,ps[i].toFixed(2),(x*ps[i]).toFixed(2),(x*x*ps[i]).toFixed(2)];});var promptHtml='<div class="card" style="padding:14px"><div style="font-weight:900">يعرض الجدول الآتي توزيع متغيّر عشوائي متقطع.</div>'+tableHtml(['x','p(x)','x p(x)','x² p(x)'],rows)+'</div>';return {branches:[{level:'متوسط',explain:['التوقع هو متوسط موزون بقيم الاحتمالات.','التباين يحسب من \\(E(X^2)-[E(X)]^2\\).'],formula:['\\(E(X)=\\sum x p(x)\\)','\\(V(X)=E(X^2)-[E(X)]^2\\)','\\(\\sigma_X=\\sqrt{V(X)}\\).'],promptHtml:promptHtml,parts:[{key:'ex',type:'number',label:'\\(E(X)\\) — قرّب إلى منزلتين',step:'0.01'},{key:'var',type:'number',label:'\\(V(X)\\) — قرّب إلى منزلتين',step:'0.01'},{key:'sd',type:'number',label:'\\(\\sigma_X\\) — قرّب إلى منزلتين',step:'0.01'}],answers:{ex:round2(ex),var:round2(variance),sd:round2(sd)},method:['\\(E(X)=\\sum xp(x)='+round2(ex)+'\\).','\\(E(X^2)='+round2(ex2)+'\\).','\\(V(X)='+round2(ex2)+'-('+round2(ex)+')^2='+round2(variance)+'\\).','\\(\\sigma_X=\\sqrt{'+round2(variance)+'}='+round2(sd)+'\\).']}]} });
+      patchTemplate('q62_hyper', function(v){var sets=[[20,6,5,1],[18,5,4,1],[25,8,6,2]],S=sets[Number(v)%sets.length],N=S[0],K=S[1],n=S[2],x=S[3],prob=comb(K,x)*comb(N-K,n-x)/comb(N,n),pge=0;for(var j=x+1;j<=Math.min(K,n);j++)pge+=comb(K,j)*comb(N-K,n-j)/comb(N,n);var promptHtml='<div class="card" style="padding:14px"><div style="font-weight:900">صندوق يحوي \\('+N+'\\) مصباحًا، منها \\('+K+'\\) معطّلة. سُحبت عينة من \\('+n+'\\) مصابيح بدون إرجاع. ليكن \\(X\\) عدد المصابيح المعطّلة في العينة.</div></div>';return {branches:[{level:'صعب',explain:['السحب بدون إرجاع من مجتمع محدود يناسب التوزيع فوق الهندسي.','نحسب طرق اختيار المعطّلة والصحيحة مقسومة على عدد طرق اختيار العينة.'],formula:['\\(P(X=x)=\\frac{\\binom{K}{x}\\binom{N-K}{n-x}}{\\binom{N}{n}}\\).'],promptHtml:promptHtml,parts:[{key:'px',type:'number',label:'\\(P(X='+x+')\\) — قرّب إلى منزلتين',step:'0.01'},{key:'pge',type:'number',label:'\\(P(X\\ge'+(x+1)+')\\) — قرّب إلى منزلتين',step:'0.01'}],answers:{px:round2(prob),pge:round2(pge)},method:['\\(P(X='+x+')=\\frac{\\binom{'+K+'}{'+x+'}\\binom{'+(N-K)+'}{'+(n-x)+'}}{\\binom{'+N+'}{'+n+'}}='+round2(prob)+'\\).','\\(P(X\\ge'+(x+1)+')\\) نجمع القيم من '+(x+1)+' حتى '+Math.min(K,n)+' = '+round2(pge)+'.']}]} });
+      patchTemplate('q62_cdf_pmf', function(v){var patterns=[[.15,.25,.35,.25],[.20,.20,.30,.30],[.10,.40,.30,.20]],ps=patterns[Number(v)%patterns.length],xs=[0,1,2,3],Fs=[],cum=0;for(var i=0;i<ps.length;i++){cum+=ps[i];Fs.push(round2(cum));}var rows=xs.map(function(x,i){return [x,ps[i].toFixed(2),Fs[i].toFixed(2)];});var promptHtml='<div class="card" style="padding:14px"><div style="font-weight:900">يعطى التوزيع الاحتمالي للمتغيّر العشوائي \\(X\\) كما في الجدول.</div>'+tableHtml(['x','p_X(x)','F_X(x)'],rows)+cdfStepSvg(xs,Fs)+'</div>';return {branches:[{level:'متوسط',explain:['للحصول على \\(F_X(x)\\) نجمع الاحتمالات عند القيم الأقل من أو تساوي \\(x\\).','الاحتمال بين حدين يساوي فرق التوزيع التراكمي.'],formula:['\\(F_X(x)=\\sum_{t\\le x}p_X(t)\\).'],promptHtml:promptHtml,parts:[{key:'f1',type:'number',label:'\\(F_X(1)\\)',step:'0.01'},{key:'f25',type:'number',label:'\\(F_X(2.5)\\)',step:'0.01'},{key:'interval',type:'number',label:'\\(P(1<X\\le3)\\)',step:'0.01'}],answers:{f1:round2(Fs[1]),f25:round2(Fs[2]),interval:round2(Fs[3]-Fs[1])},method:['\\(F_X(1)='+Fs[1].toFixed(2)+'\\).','\\(F_X(2.5)='+Fs[2].toFixed(2)+'\\).','\\(P(1<X\\le3)=F_X(3)-F_X(1)=1-'+Fs[1].toFixed(2)+'='+round2(Fs[3]-Fs[1])+'\\).']}]} });
+      patchTemplate('q62_linear_expectation', function(v){var patterns=[[[1,2,3,4],[.20,.30,.10,.40],2,3],[[0,1,2,3],[.25,.25,.30,.20],3,1],[[1,3,5,7],[.10,.30,.40,.20],2,-1]],P=patterns[Number(v)%patterns.length],xs=P[0],ps=P[1],a=P[2],b=P[3],ex=sum(xs.map(function(x,i){return x*ps[i];})),ex2=sum(xs.map(function(x,i){return x*x*ps[i];})),vx=ex2-ex*ex,ey=a*ex+b,vy=a*a*vx,rows=xs.map(function(x,i){return [x,ps[i].toFixed(2)];});var promptHtml='<div class="card" style="padding:14px"><div style="font-weight:900">اعتمادًا على التوزيع الاحتمالي الآتي، إذا كان \\(Y='+a+'X'+(b>=0?'+':'')+b+'\\)، أوجد التوقع والتباين لـ \\(Y\\).</div>'+tableHtml(['x','P(X=x)'],rows)+'</div>';return {branches:[{level:'صعب',explain:['ابدأ بحساب \\(E(X)\\) و \\(V(X)\\) من الجدول.','نستخدم خواص التوقع والتباين للتحويل الخطي.'],formula:['\\(E(aX+b)=aE(X)+b\\)','\\(V(aX+b)=a^2V(X)\\).'],promptHtml:promptHtml,parts:[{key:'ey',type:'number',label:'\\(E(Y)\\) — قرّب إلى منزلتين',step:'0.01'},{key:'vy',type:'number',label:'\\(V(Y)\\) — قرّب إلى منزلتين',step:'0.01'}],answers:{ey:round2(ey),vy:round2(vy)},method:['\\(E(X)='+round2(ex)+'\\)، و \\(E(X^2)='+round2(ex2)+'\\).','\\(V(X)='+round2(vx)+'\\).','\\(E(Y)='+a+'E(X)+'+b+'='+round2(ey)+'\\).','\\(V(Y)='+a+'^2V(X)='+round2(vy)+'\\).']}]} });
+    }catch(e){console.warn('CoreUp V31 template patch warning',e);}
+  }
+  function ensure7(){
+    try{
+      if(typeof TEMPLATES==='undefined'||!Array.isArray(TEMPLATES)||typeof state==='undefined') return [];
+      var ids=TEMPLATES.map(function(t){return t.id;}), count=Math.min(7,ids.length);
+      var ok=Array.isArray(state.order)&&state.orderVersion===ORDER_VERSION&&state.order.length===count&&state.order.every(function(id){return ids.indexOf(id)>=0;});
+      if(!ok){
+        var r=seeded('order|'+Date.now()+'|'+Math.random()+'|'+location.pathname);
+        state.order=shuf(ids.slice(),r).slice(0,count);
+        state.orderVersion=ORDER_VERSION;
+        state.variants=state.variants||{};
+        state.order.forEach(function(id){state.variants[id]=Math.floor(r()*10000)+1;});
+        state.currentIndex=0; state.answers={}; state.grading={}; state.attempts={}; state.saveAttempts={}; state.locks={}; state.outcomes={}; state.dirty={};
+        try{saveState();}catch(e){}
+      }
+      return state.order;
+    }catch(e){return [];}
+  }
+  function build7(){
+    patchVariantTemplates();
+    var order=ensure7();
+    return order.map(function(id){var t=TEMPLATES.find(function(x){return x.id===id;});var v=getVariant(t.id);var g=t.gen(v);return{id:t.id,title:t.title,icon:t.icon,branches:g.branches};});
+  }
+  try{ensureOrder=ensure7; buildBank=build7; BANK=build7();}catch(e){}
+  window.swapQuestion=function(qid){
+    try{
+      state.variants=state.variants||{};
+      state.variants[qid]=Number(state.variants[qid]||0)+1+Math.floor(Math.random()*5);
+      if(state.answers) delete state.answers[qid];
+      if(state.grading) delete state.grading[qid];
+      if(state.attempts) delete state.attempts[qid];
+      if(state.saveAttempts) delete state.saveAttempts[qid];
+      if(state.locks) delete state.locks[qid];
+      if(state.outcomes) delete state.outcomes[qid];
+      if(state.dirty) delete state.dirty[qid];
+      try{ if(typeof resetAssistantConversation==='function') resetAssistantConversation(true); }catch(e){}
+      patchVariantTemplates();
+      var idx=(typeof BANK!=='undefined'&&BANK)?BANK.findIndex(function(q){return q.id===qid;}):-1;
+      var t=TEMPLATES.find(function(x){return x.id===qid;});
+      if(t && idx>=0){var g=t.gen(getVariant(qid)); BANK[idx]={id:t.id,title:t.title,icon:t.icon,branches:g.branches};}
+      try{saveState();}catch(e){}
+      try{renderAll();}catch(e){}
+      setTimeout(function(){safeTypeset(document.body);},80);
+    }catch(e){console.error('swapQuestion V31 failed',e);}
+  };
+  try{swapQuestion=window.swapQuestion;}catch(e){}
+  function boot(){
+    patchVariantTemplates();
+    try{BANK=build7();}catch(e){}
+    setTimeout(function(){try{renderAll();}catch(e){} safeTypeset(document.body);},80);
+    setTimeout(function(){safeTypeset(document.body);},400);
+    try{new MutationObserver(function(muts){clearTimeout(window.__cuV31Timer);window.__cuV31Timer=setTimeout(function(){safeTypeset(document.body);},60);}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});}catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
 })();
 </script>
+
 </body>
 </html>
